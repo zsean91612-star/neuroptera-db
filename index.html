@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>台灣脈翅目觀察資料庫</title>
+<style>
+  :root {
+    --bg: #f4faf7;
+    --card-bg: #ffffff;
+    --accent: #2d7a5a;
+    --accent-light: #e8f5ef;
+    --accent2: #1a5c3f;
+    --text: #1a3328;
+    --muted: #5a8070;
+    --border: #c5ddd4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Noto Sans TC", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--accent);
+    color: white;
+    padding: 1.2rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,.2);
+  }
+  header h1 { font-size: 1.2rem; font-weight: 700; }
+  header .subtitle { font-size: .8rem; opacity: .85; }
+  .header-nav { display: flex; gap: .6rem; margin-left: auto; flex-wrap: wrap; }
+  .header-nav a {
+    color: rgba(255,255,255,.8); text-decoration: none;
+    font-size: .82rem; padding: .2rem .65rem;
+    border-radius: 999px; border: 1px solid rgba(255,255,255,.35);
+  }
+  .header-nav a:hover, .header-nav a.active {
+    background: rgba(255,255,255,.2); color: white;
+  }
+  #total-badge {
+    background: rgba(255,255,255,.2);
+    border-radius: 999px;
+    padding: .2rem .8rem;
+    font-size: .85rem;
+  }
+
+  /* ── Layout ── */
+  .layout { display: flex; gap: 0; }
+
+  /* ── Sidebar / Filters ── */
+  aside {
+    width: 250px;
+    min-width: 250px;
+    background: var(--card-bg);
+    border-right: 1px solid var(--border);
+    padding: 1.2rem;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+    position: sticky;
+    top: 60px;
+  }
+  aside h2 {
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--muted);
+    margin-bottom: .6rem;
+  }
+  #search {
+    width: 100%;
+    padding: .5rem .7rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: .9rem;
+    margin-bottom: 1.2rem;
+    outline: none;
+  }
+  #search:focus { border-color: var(--accent); }
+
+  /* Category filter tabs */
+  .cat-list { list-style: none; margin-bottom: 1.4rem; }
+  .cat-list li {
+    padding: .3rem .5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: .88rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .cat-list li:hover { background: var(--accent-light); }
+  .cat-list li.active { background: var(--accent); color: white; }
+  .cat-list li .count {
+    font-size: .75rem;
+    opacity: .7;
+    background: rgba(0,0,0,.08);
+    border-radius: 999px;
+    padding: .05rem .45rem;
+  }
+  .cat-list li.active .count { background: rgba(255,255,255,.2); }
+
+  /* Toggle family groups */
+  .family-group { margin-bottom: .3rem; }
+  .family-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: .35rem .5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: .85rem;
+    font-weight: 600;
+    color: var(--accent2);
+    user-select: none;
+    border: 1px solid transparent;
+  }
+  .family-header:hover { background: var(--accent-light); }
+  .family-header.has-active { border-color: var(--accent); background: var(--accent-light); }
+  .family-arrow {
+    font-size: .65rem;
+    transition: transform .2s;
+    color: var(--muted);
+  }
+  .family-group.open .family-arrow { transform: rotate(90deg); }
+  .family-count {
+    font-size: .72rem;
+    color: var(--muted);
+    background: rgba(0,0,0,.06);
+    border-radius: 999px;
+    padding: .05rem .4rem;
+    margin-left: auto;
+    margin-right: .3rem;
+  }
+  .family-body { display: none; padding-left: .5rem; }
+  .family-group.open .family-body { display: block; }
+  .species-item {
+    padding: .25rem .5rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: .82rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .species-item:hover { background: var(--accent-light); }
+  .species-item.active { background: var(--accent); color: white; }
+  .species-item .count {
+    font-size: .72rem;
+    opacity: .7;
+    background: rgba(0,0,0,.08);
+    border-radius: 999px;
+    padding: .05rem .4rem;
+  }
+  .species-item.active .count { background: rgba(255,255,255,.2); }
+
+  /* ── Main grid ── */
+  main {
+    flex: 1;
+    padding: 1.2rem;
+    overflow-y: auto;
+  }
+  #grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+  .card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+    border: 1px solid var(--border);
+  }
+  .card:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,.12); }
+  .card-img {
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    background: var(--accent-light);
+    display: block;
+  }
+  .card-no-img {
+    width: 100%;
+    aspect-ratio: 4/3;
+    background: linear-gradient(135deg, #e8f5ef, #b2dfdb);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+  }
+  .card-body { padding: .75rem; }
+  .card-species {
+    font-weight: 600;
+    font-size: .9rem;
+    color: var(--accent);
+    margin-bottom: .2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .card-family {
+    font-size: .75rem;
+    color: var(--muted);
+    margin-bottom: .2rem;
+  }
+  .card-location {
+    font-size: .8rem;
+    color: var(--muted);
+    margin-bottom: .35rem;
+  }
+  .card-location::before { content: "📍 "; }
+  .card-text {
+    font-size: .8rem;
+    line-height: 1.4;
+    color: #555;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .card-meta {
+    margin-top: .5rem;
+    font-size: .72rem;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+  }
+  #empty {
+    text-align: center;
+    padding: 4rem 1rem;
+    color: var(--muted);
+    display: none;
+  }
+  #empty .icon { font-size: 3rem; margin-bottom: .5rem; }
+
+  /* ── Modal ── */
+  #modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.65);
+    z-index: 200;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem 1rem;
+    overflow-y: auto;
+  }
+  #modal-overlay.open { display: flex; }
+  #modal {
+    background: var(--card-bg);
+    border-radius: 12px;
+    max-width: 700px;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+  }
+  #modal-close {
+    position: absolute; top: .75rem; right: .75rem;
+    background: rgba(0,0,0,.5); color: white;
+    border: none; border-radius: 50%; width: 28px; height: 28px;
+    font-size: 1rem; cursor: pointer; display: flex;
+    align-items: center; justify-content: center;
+    z-index: 1;
+  }
+  #modal-imgs {
+    display: flex; flex-wrap: wrap; gap: .5rem;
+    padding: .75rem; background: #111; max-height: 60vh; overflow-y: auto;
+  }
+  #modal-imgs img {
+    max-height: 300px; max-width: 100%; border-radius: 6px; cursor: zoom-in;
+  }
+  #modal-body { padding: 1.2rem; }
+  #modal-species { font-size: 1.2rem; font-weight: 700; color: var(--accent); margin-bottom: .4rem; }
+  #modal-meta { font-size: .85rem; color: var(--muted); margin-bottom: .8rem; }
+  #modal-text { font-size: .9rem; line-height: 1.6; white-space: pre-wrap; margin-bottom: 1rem; }
+  #modal-link {
+    display: inline-block;
+    background: var(--accent); color: white;
+    text-decoration: none; padding: .45rem 1.1rem;
+    border-radius: 8px; font-size: .85rem;
+  }
+  #modal-link:hover { background: var(--accent2); }
+
+  @media (max-width: 700px) {
+    aside { display: none; }
+    .layout { display: block; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>🦟 台灣脈翅目觀察資料庫</h1>
+    <div class="subtitle">Neuropterida in Taiwan</div>
+  </div>
+  <span id="total-badge">161 則紀錄</span>
+  <nav class="header-nav">
+    <a href="index.html" class="active">野外觀察紀錄</a>
+    <a href="species.html">物種圖鑑</a>
+    <a href="id_guide.html">辨識指南</a>
+    <a href="quiz.html">物種測驗</a>
+  </nav>
+</header>
+
+<div class="layout">
+<aside>
+  <input id="search" type="text" placeholder="搜尋物種、地點…">
+
+  <h2>類別</h2>
+  <ul class="cat-list" id="cat-list"></ul>
+
+  <h2>物種（依科別）</h2>
+  <div id="family-groups"></div>
+</aside>
+
+<main>
+  <div id="grid"></div>
+  <div id="empty"><div class="icon">🔍</div><div>沒有符合條件的紀錄</div></div>
+</main>
+</div>
+
+<!-- Modal -->
+<div id="modal-overlay" onclick="closeModal(event)">
+  <div id="modal">
+    <button id="modal-close" onclick="closeModal()">✕</button>
+    <div id="modal-imgs"></div>
+    <div id="modal-body">
+      <div id="modal-species"></div>
+      <div id="modal-meta"></div>
+      <div id="modal-text"></div>
+      <a id="modal-link" href="#" target="_blank">查看原貼文 →</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const POSTS = [{"post_id": "3345550055611044", "post_url": "https://www.facebook.com/groups/483678968464848/posts/3345550055611044", "author": "韓羲之", "timestamp": "", "text": "韓羲之的貼文", "images": ["3345550055611044/3550dad8ad4f126c.jpg", "3345550055611044/6e1c928c5c12d864.jpg"], "species": "", "location": "", "category": "wild_taiwan"}, {"post_id": "3270923076407076", "post_url": "https://www.facebook.com/groups/483678968464848/posts/3270923076407076", "author": "Ugo Chen", "timestamp": "", "text": "查看洞察報告", "images": ["3270923076407076/630498fdb8dd6af7.jpg"], "species": "白斑蟻蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "3268198313346219", "post_url": "https://www.facebook.com/groups/483678968464848/posts/3268198313346219", "author": "黃俞晴", "timestamp": "", "text": "黃俞晴的貼文", "images": ["3268198313346219/76885bc838ec51ff.jpg", "3268198313346219/2d23a8df2368b9eb.jpg"], "species": "褐翅蟻蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "3240048599494524", "post_url": "https://www.facebook.com/groups/483678968464848/posts/3240048599494524", "author": "Jenny Chiang", "timestamp": "", "text": "查看洞察報告", "images": ["3240048599494524/3b888c44807a4293.jpg", "3240048599494524/aad6a41a520eaa00.jpg"], "species": "台灣螳蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "3229146013918116", "post_url": "https://www.facebook.com/groups/483678968464848/posts/3229146013918116", "author": "Jichi Liou", "timestamp": "", "text": "羽化網陷阱抓到奇怪的東西", "images": ["3229146013918116/e1e197b821f2462a.jpg", "3229146013918116/faa286db2084d6dc.jpg", "3229146013918116/33df184e20bcc7a2.jpg", "3229146013918116/5dffa6c40427f02f.jpg"], "species": "粉蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "3208590112640373", "post_url": "https://www.facebook.com/groups/483678968464848/posts/3208590112640373", "author": "徐志文", "timestamp": "", "text": "徐志文的貼文", "images": ["3208590112640373/ffab81ce73f5fde8.jpg"], "species": "櫛角蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "3191120751053976", "post_url": "https://www.facebook.com/groups/483678968464848/posts/3191120751053976", "author": "徐志文", "timestamp": "", "text": "徐志文的貼文", "images": ["3191120751053976/cbca065b41d73757.jpg"], "species": "櫛角蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2485666828266042", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2485666828266042", "author": "Janus Olajuan Boediman", "timestamp": "", "text": "指南宮", "images": ["2485666828266042/e3b5a3ddcb05593f.jpg"], "species": "", "location": "指南宮", "category": "wild_taiwan"}, {"post_id": "3086779181488134", "post_url": "https://www.facebook.com/groups/483678968464848/posts/3086779181488134", "author": "劉志郁", "timestamp": "", "text": "劉志郁的貼文", "images": ["3086779181488134/066855ac45ce8d04.jpg", "3086779181488134/2fb25a673a524f56.jpg", "3086779181488134/7d0a5e0fc6659ac4.jpg"], "species": "", "location": "", "category": "wild_taiwan"}, {"post_id": "3093806560785396", "post_url": "https://www.facebook.com/groups/483678968464848/posts/3093806560785396", "author": "Cheuk Nam Bo", "timestamp": "", "text": "裡冷林道", "images": ["3093806560785396/de50b9ed9691957a.jpg"], "species": "瘦狹肩褐蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "3085880861577966", "post_url": "https://www.facebook.com/groups/483678968464848/posts/3085880861577966", "author": "李世賢", "timestamp": "", "text": "李世賢的貼文", "images": ["3085880861577966/0661ebd652dfc39e.jpg", "3085880861577966/a3d0a25fa85a51d8.jpg", "3085880861577966/f9f8b3bb42bccab2.jpg"], "species": "草蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "3070839409748778", "post_url": "https://www.facebook.com/groups/483678968464848/posts/3070839409748778", "author": "歐庭愷", "timestamp": "", "text": "請教可能分類群", "images": ["3070839409748778/45adcc39873bb8b2.jpg", "3070839409748778/e48645008887028d.jpg", "3070839409748778/10a516ff8465ceee.jpg", "3070839409748778/6d939dcc7925360a.jpg"], "species": "紅肩草蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2976678692498184", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2976678692498184", "author": "曾粲然", "timestamp": "", "text": "曾粲然的貼文", "images": ["2976678692498184/c0ab4bb5c40d1c32.jpg", "2976678692498184/de0e9ddb52973b34.jpg"], "species": "齒蛉幼蟲", "location": "", "category": "wild_taiwan"}, {"post_id": "2876003755899012", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2876003755899012", "author": "簡廷仰", "timestamp": "", "text": "簡廷仰的貼文", "images": ["2876003755899012/e1a1fdc59daad66b.jpg"], "species": "", "location": "", "category": "wild_taiwan"}, {"post_id": "2872497496249638", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2872497496249638", "author": "張宏銘", "timestamp": "", "text": "張宏銘的貼文", "images": ["2872497496249638/e317e1efb2dc95d7.jpg"], "species": "白斑蟻蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2859786784187376", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2859786784187376", "author": "韓羲之", "timestamp": "", "text": "韓羲之的貼文", "images": ["2859786784187376/9cd7e961e2bf187d.jpg", "2859786784187376/5e21635172920386.jpg"], "species": "褐翅蟻蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2605289766303747", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2605289766303747", "author": "陳曉佐", "timestamp": "", "text": "陳曉佐的貼文", "images": ["2605289766303747/aa76cabfa0d48055.jpg"], "species": "Distoleon bistrigatus", "location": "", "category": "wild_taiwan"}, {"post_id": "2846649158834472", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2846649158834472", "author": "林宗翰", "timestamp": "", "text": "林宗翰的貼文", "images": ["2846649158834472/8ab6400167cd457b.jpg"], "species": "翼蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2811978902301498", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2811978902301498", "author": "Yusen Wu", "timestamp": "", "text": "新北貢寮福隆海邊", "images": ["2811978902301498/771551acb4e8bbe7.jpg"], "species": "長角蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2803977706434951", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2803977706434951", "author": "劉志郁", "timestamp": "", "text": "劉志郁的貼文", "images": ["2803977706434951/407e781d98cfc550.jpg", "2803977706434951/d049545d9c1b40d7.jpg"], "species": "日本長角蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2806394472859941", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2806394472859941", "author": "孫國鈞", "timestamp": "", "text": "孫國鈞的貼文", "images": ["2806394472859941/1066fb13af902708.jpg", "2806394472859941/0b00ee1fa1c7cecb.jpg"], "species": "長角蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2801531650012890", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2801531650012890", "author": "PoYa Chang", "timestamp": "", "text": "請問這是臺灣蝶角蛉嗎？", "images": ["2801531650012890/2d33497912a2d310.jpg"], "species": "Maezous sp.", "location": "", "category": "wild_taiwan"}, {"post_id": "2804249009741154", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2804249009741154", "author": "李文貴", "timestamp": "", "text": "羽化不完全的蝶角蛉", "images": ["2804249009741154/a1431e82be32b556.jpg"], "species": "Maezous sp.", "location": "", "category": "wild_taiwan"}, {"post_id": "2801896396643082", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2801896396643082", "author": "Yue-hang Du", "timestamp": "", "text": "請問", "images": ["2801896396643082/b49b01d0441d1414.jpg"], "species": "蝶角蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2776796085819780", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2776796085819780", "author": "簡俊哲", "timestamp": "", "text": "簡俊哲的貼文", "images": ["2776796085819780/75df2b99974ea094.jpg"], "species": "臀腋蟻蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2785378188294903", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2785378188294903", "author": "Berna Wang", "timestamp": "", "text": "請問這是何種草蛉？", "images": ["2785378188294903/7b9a9012776f2fe8.jpg", "2785378188294903/629d79606e5d232d.jpg", "2785378188294903/1e421f3de499e3dd.jpg", "2785378188294903/fa4f4003e3123894.jpg", "2785378188294903/49e075f3979b3531.jpg"], "species": "台灣蟻蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2785457294953659", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2785457294953659", "author": "湯興漢", "timestamp": "", "text": "湯興漢的貼文", "images": ["2785457294953659/e98410e50de9ac64.jpg"], "species": "暗色準魚蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2769624883203567", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2769624883203567", "author": "陳筱愉", "timestamp": "", "text": "陳筱愉的貼文", "images": ["2769624883203567/f2461109aa605792.jpg", "2769624883203567/272a8ff8735f3ad2.jpg", "2769624883203567/d02fc27883e77293.jpg"], "species": "Drepanacra sp.", "location": "", "category": "wild_taiwan"}, {"post_id": "2759124184253637", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2759124184253637", "author": "李文貴", "timestamp": "", "text": "李文貴的貼文", "images": ["2759124184253637/de7278de2fdd5a01.jpg"], "species": "條斑寡脈褐蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2762423090590413", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2762423090590413", "author": "陳奕翔", "timestamp": "", "text": "陳奕翔的貼文", "images": ["2762423090590413/4bcc7306eb52cbc9.jpg", "2762423090590413/10c33f05c959f550.jpg", "2762423090590413/2e0be5e5e2fd5d4a.jpg"], "species": "翼蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2710718175760905", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2710718175760905", "author": "許再文", "timestamp": "", "text": "許再文的貼文", "images": ["2710718175760905/e8b62eeb6d8a50ca.jpg", "2710718175760905/5971f838625680e7.jpg"], "species": "Notiobiella subolivacea", "location": "", "category": "wild_taiwan"}, {"post_id": "1188392991326772", "post_url": "https://www.facebook.com/groups/483678968464848/posts/1188392991326772", "author": "黃世仁", "timestamp": "", "text": "黃世仁的貼文", "images": ["1188392991326772/658522594a72aba8.jpg"], "species": "", "location": "", "category": "wild_taiwan"}, {"post_id": "2741857849313604", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2741857849313604", "author": "Syoutei Kaku", "timestamp": "", "text": "請問有辦法辨識是哪種草蛉的幼蟲嗎", "images": ["2741857849313604/918bd743778eed0a.jpg", "2741857849313604/e10cae9839e26308.jpg"], "species": "草蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2660019440830779", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2660019440830779", "author": "Rj Chen", "timestamp": "", "text": "謝謝！", "images": ["2660019440830779/73e78cfa4552b6ba.jpg"], "species": "", "location": "", "category": "wild_taiwan"}, {"post_id": "2661481147351275", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2661481147351275", "author": "Sam Hsieh", "timestamp": "", "text": "請問這是甚麼蛉?112.9.30陽明山橫嶺古道", "images": ["2661481147351275/0533807f4c480f97.jpg"], "species": "白斑蟻蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2641100189389371", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2641100189389371", "author": "陳秋滿", "timestamp": "", "text": "陳秋滿的貼文", "images": ["2641100189389371/7579ed28add4974b.jpg"], "species": "魚蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2635742689925121", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2635742689925121", "author": "林彦禕", "timestamp": "", "text": "第一次看到肚子這麼大的", "images": ["2635742689925121/fdf002ce6e687af1.jpg", "2635742689925121/2a7e2093fa9bb80f.jpg", "2635742689925121/f3635919f446232b.jpg"], "species": "寬完眼蝶角蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2633866203446103", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2633866203446103", "author": "PoYa Chang", "timestamp": "", "text": "有做陷阱，挖出觀察", "images": ["2633866203446103/c7675019464fbff9.jpg"], "species": "胸紋蟻蛉幼蟲", "location": "", "category": "wild_taiwan"}, {"post_id": "2632349220264468", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2632349220264468", "author": "詹愷崴", "timestamp": "", "text": "可能是島上第一筆脈翅目紀錄", "images": ["2632349220264468/c7433ac4f26ef292.jpg"], "species": "Synclisis kawaii", "location": "", "category": "wild_taiwan"}, {"post_id": "2597122617120462", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2597122617120462", "author": "施禮正", "timestamp": "", "text": "施禮正的貼文", "images": ["2597122617120462/af7d18d896d04c64.jpg"], "species": "Mantispa nigra", "location": "", "category": "wild_taiwan"}, {"post_id": "2598477763651614", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2598477763651614", "author": "林彦禕", "timestamp": "", "text": "林彦禕的貼文", "images": ["2598477763651614/9fba09b037dc9356.jpg", "2598477763651614/d50658621e9ae3f3.jpg"], "species": "台灣螳蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2598702453629145", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2598702453629145", "author": "羅美玲", "timestamp": "", "text": "寄生高腳蛛卵囊的台灣簡脈螳蛉", "images": ["2598702453629145/6da11a80ba382381.jpg", "2598702453629145/e3341fa0646e99bd.jpg"], "species": "台灣螳蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2595520453947345", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2595520453947345", "author": "孫國鈞", "timestamp": "", "text": "孫國鈞的貼文", "images": ["2595520453947345/b1ac9d2d9bb262f7.jpg"], "species": "白斑蟻蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2595046713994719", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2595046713994719", "author": "孫國鈞", "timestamp": "", "text": "孫國鈞的貼文", "images": ["2595046713994719/b7d5666d6e28016d.jpg"], "species": "完眼蝶角蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2595087660657291", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2595087660657291", "author": "林玉米", "timestamp": "", "text": "林玉米的貼文", "images": ["2595087660657291/0a230db9e77f2b71.jpg"], "species": "台灣螳蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2594237060742351", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2594237060742351", "author": "Milo Chen", "timestamp": "", "text": "請教名稱 謝謝", "images": ["2594237060742351/d0db68b179b83ab1.jpg"], "species": "白斑蟻蛉", "location": "馬祖", "category": "wild_taiwan"}, {"post_id": "2593434387489285", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2593434387489285", "author": "范懷文", "timestamp": "", "text": "范懷文的貼文", "images": ["2593434387489285/9a3d272415bf9237.jpg"], "species": "翼蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2588930234606367", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2588930234606367", "author": "張君基", "timestamp": "", "text": "張君基的貼文", "images": ["2588930234606367/edf42ac7531f197f.jpg"], "species": "紅肩草蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2577652502400807", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2577652502400807", "author": "萬形", "timestamp": "", "text": "萬形的貼文", "images": ["2577652502400807/83bbf7ce38da7e5a.jpg"], "species": "", "location": "", "category": "wild_taiwan"}, {"post_id": "2569114583254599", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2569114583254599", "author": "謝華君", "timestamp": "", "text": "謝華君的貼文", "images": ["2569114583254599/e84897c038f18bb4.jpg"], "species": "", "location": "", "category": "wild_taiwan"}, {"post_id": "2566391246860266", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2566391246860266", "author": "林棋欽", "timestamp": "", "text": "林棋欽的貼文", "images": ["2566391246860266/d219677b1154ec3f.jpg", "2566391246860266/e53b1b92511f2d00.jpg"], "species": "Micromus yunnanus", "location": "", "category": "wild_taiwan"}, {"post_id": "2557259067773484", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2557259067773484", "author": "黃秀娥", "timestamp": "", "text": "黃秀娥的貼文", "images": ["2557259067773484/69737bddc073adb2.jpg", "2557259067773484/1517baa9c10b2975.jpg", "2557259067773484/528c55f023d247a5.jpg"], "species": "刺蝶角蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2545791528920238", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2545791528920238", "author": "蔡麗香", "timestamp": "", "text": "蔡麗香的貼文", "images": ["2545791528920238/5ae034ecdda9e3b9.jpg", "2545791528920238/f14df18c8906ef01.jpg"], "species": "蝶角蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "3217455281753856", "post_url": "https://www.facebook.com/groups/483678968464848/posts/3217455281753856", "author": "雷宇濤", "timestamp": "", "text": "雷宇濤的貼文", "images": ["3217455281753856/c956ef2b57418e24.jpg", "3217455281753856/b45295dffc1f6b70.jpg"], "species": "草蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "1308211942678209", "post_url": "https://www.facebook.com/groups/483678968464848/posts/1308211942678209", "author": "李文德", "timestamp": "", "text": "以上圖片有些用顯微拍照堆壘合成", "images": ["1308211942678209/9e2fa7644c7849c8.jpg", "1308211942678209/25e69d6381ac1260.jpg", "1308211942678209/0d12ce2adb97b7d7.jpg", "1308211942678209/0f8c023b022b5aff.jpg", "1308211942678209/13fc7d8c22417c3e.jpg"], "species": "", "location": "", "category": "wild_taiwan"}, {"post_id": "3543112665854781", "post_url": "https://www.facebook.com/groups/483678968464848/posts/3543112665854781", "author": "張森博", "timestamp": "", "text": "張森博的貼文", "images": ["3543112665854781/3381969fdb04a91c.jpg", "3543112665854781/9c8eeaa272544691.jpg", "3543112665854781/20b8afa289336dc6.jpg", "3543112665854781/acb29dcd2c1c0b82.jpg"], "species": "刺蝶角蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "538524079647003", "post_url": "https://www.facebook.com/groups/483678968464848/posts/538524079647003", "author": "Suede Chen", "timestamp": "", "text": "請教草蛉", "images": ["538524079647003/43068249824555c7.jpg"], "species": "草蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "917751858390888", "post_url": "https://www.facebook.com/groups/483678968464848/posts/917751858390888", "author": "賴保成", "timestamp": "", "text": "賴保成的貼文", "images": ["917751858390888/175e0660f2b71031.jpg"], "species": "", "location": "", "category": "wild_taiwan"}, {"post_id": "3490168307815884", "post_url": "https://www.facebook.com/groups/483678968464848/posts/3490168307815884", "author": "李淳澈", "timestamp": "", "text": "李淳澈的貼文", "images": ["3490168307815884/254a7daeed9f9714.jpg", "3490168307815884/11122d9402ae78d8.jpg"], "species": "", "location": "", "category": "wild_taiwan"}, {"post_id": "2606078409558216", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2606078409558216", "author": "郭少亭", "timestamp": "", "text": "郭少亭的貼文", "images": ["2606078409558216/e1464bb7ac3d2342.jpg"], "species": "", "location": "", "category": "wild_taiwan"}, {"post_id": "3485851854914196", "post_url": "https://www.facebook.com/groups/483678968464848/posts/3485851854914196", "author": "Jyh Jong Cherng", "timestamp": "", "text": "查看洞察報告", "images": ["3485851854914196/89253e2c85c7aaa3.jpg"], "species": "", "location": "", "category": "wild_taiwan"}, {"post_id": "2196078573891537", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2196078573891537", "author": "簡俊哲", "timestamp": "", "text": "簡俊哲的貼文", "images": ["2196078573891537/5f8fbe2e25d82842.jpg"], "species": "草蛉幼蟲", "location": "", "category": "wild_taiwan"}, {"post_id": "1713949388771127", "post_url": "https://www.facebook.com/groups/483678968464848/posts/1713949388771127", "author": "李鍾旻", "timestamp": "", "text": "李鍾旻的貼文", "images": ["1713949388771127/3d3603b96b07a1b7.jpg"], "species": "草蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2160027120830016", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2160027120830016", "author": "廖美惠", "timestamp": "", "text": "終於親眼見到草蛉", "images": ["2160027120830016/ee1c7c6fc620e711.jpg"], "species": "", "location": "", "category": "wild_taiwan"}, {"post_id": "2222620541237340", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2222620541237340", "author": "邱麗卿", "timestamp": "", "text": "邱麗卿的貼文", "images": ["2222620541237340/1ee232d1c087bd97.jpg"], "species": "", "location": "", "category": "wild_taiwan"}, {"post_id": "1439404689558933", "post_url": "https://www.facebook.com/groups/483678968464848/posts/1439404689558933", "author": "塗承諺", "timestamp": "", "text": "難得一見的畫面", "images": ["1439404689558933/42db4bed4d0bb5ff.jpg"], "species": "蛾蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "540403532792391", "post_url": "https://www.facebook.com/groups/483678968464848/posts/540403532792391", "author": "Adam Hsu", "timestamp": "", "text": "觸角短", "images": ["540403532792391/848db926d790f320.jpg"], "species": "少紋蟻蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2087083938124335", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2087083938124335", "author": "時光人", "timestamp": "", "text": "棲地是有鐵皮屋頂稍微遮蔽的微乾土地", "images": ["2087083938124335/5ed09d273ecf5341.jpg", "2087083938124335/00c7a1677584c5d3.jpg", "2087083938124335/4f4fadfefb382d24.jpg", "2087083938124335/49f1a45f9aa53658.jpg", "2087083938124335/af3279b826be21a3.jpg"], "species": "雙斑蟻蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2032281790271217", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2032281790271217", "author": "Tyus Ma", "timestamp": "", "text": "由新到舊", "images": ["2032281790271217/7e398b249b528f2a.jpg"], "species": "蟻蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "1360540744111995", "post_url": "https://www.facebook.com/groups/483678968464848/posts/1360540744111995", "author": "詹愷崴", "timestamp": "", "text": "詹愷崴的貼文", "images": ["1360540744111995/d85637857e8878f3.jpg", "1360540744111995/ed5670de5f2547ec.jpg", "1360540744111995/51ba9fe22bd786a4.jpg", "1360540744111995/4b822ac14a9144da.jpg"], "species": "臀腋蟻蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "1971257643731758", "post_url": "https://www.facebook.com/groups/483678968464848/posts/1971257643731758", "author": "陳進明", "timestamp": "", "text": "救下蛛網突飛入似紅尾蛛蜂的牠", "images": ["1971257643731758/0a005695726411d5.jpg", "1971257643731758/bb7f3fcd83acd8a8.jpg", "1971257643731758/f8448a6a2cfe545b.jpg", "1971257643731758/4c35894b29216896.jpg", "1971257643731758/a49b7a816911d822.jpg"], "species": "螳蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2842432205922834", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2842432205922834", "author": "福勞爾", "timestamp": "", "text": "產在金午時花枝條上", "images": ["2842432205922834/e9fa8a22492ca258.jpg", "2842432205922834/c99d8bd166da0925.jpg", "2842432205922834/2f75352eb320e7d8.jpg", "2842432205922834/1a70506f93c3773e.jpg", "2842432205922834/448c16778e8e8457.jpg"], "species": "蝶角蛉幼蟲", "location": "", "category": "wild_taiwan"}, {"post_id": "3530021090497272", "post_url": "https://www.facebook.com/groups/483678968464848/posts/3530021090497272", "author": "羅美玲", "timestamp": "", "text": "羅美玲的貼文", "images": ["3530021090497272/8ffcbbe012731f56.jpg", "3530021090497272/26674a5dccfec441.jpg"], "species": "", "location": "", "category": "wild_taiwan"}, {"post_id": "1854687671363964", "post_url": "https://www.facebook.com/groups/483678968464848/posts/1854687671363964", "author": "傅至人", "timestamp": "", "text": "傅至人的貼文", "images": ["1854687671363964/758ae7e8d8d2522c.jpg", "1854687671363964/edd9e2270e9d5c6a.jpg"], "species": "台灣蟻蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "485354634963948", "post_url": "https://www.facebook.com/groups/483678968464848/posts/485354634963948", "author": "黃仕傑", "timestamp": "", "text": "我決定到哪邊看到長角蛉或是什麼蛉都要快點拍一下上傳", "images": ["485354634963948/f93cf8fbc492f15c.jpg"], "species": "完眼蝶角蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "1305095792989824", "post_url": "https://www.facebook.com/groups/483678968464848/posts/1305095792989824", "author": "詹愷崴", "timestamp": "", "text": "詹愷崴的貼文", "images": ["1305095792989824/cce4c04ab64d9cbd.jpg"], "species": "魚蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "534641816701896", "post_url": "https://www.facebook.com/groups/483678968464848/posts/534641816701896", "author": "謝怡萱", "timestamp": "", "text": "謝怡萱的貼文", "images": ["534641816701896/84883a0c4b8fc53d.jpg"], "species": "完眼蝶角蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "3480999192066129", "post_url": "https://www.facebook.com/groups/483678968464848/posts/3480999192066129", "author": "李淳澈", "timestamp": "", "text": "李淳澈的貼文", "images": ["3480999192066129/2dcab9154bd56dfb.jpg", "3480999192066129/5ad041549c9764e1.jpg", "3480999192066129/153df8b16b2f126b.jpg"], "species": "", "location": "", "category": "wild_taiwan"}, {"post_id": "3537535469745834", "post_url": "https://www.facebook.com/groups/483678968464848/posts/3537535469745834", "author": "羅美玲", "timestamp": "", "text": "羅美玲的貼文", "images": ["3537535469745834/085b8bf2c921f76c.jpg", "3537535469745834/20c69b70a3f0a50f.jpg"], "species": "", "location": "", "category": "wild_taiwan"}, {"post_id": "513573255475419", "post_url": "https://www.facebook.com/groups/483678968464848/posts/513573255475419", "author": "謝怡萱", "timestamp": "", "text": "謝怡萱的貼文", "images": ["513573255475419/ba219455314dff82.jpg"], "species": "斑魚蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2054992644666798", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2054992644666798", "author": "賴保成", "timestamp": "", "text": "賴保成的貼文", "images": ["2054992644666798/737f0e761cbb7316.jpg"], "species": "櫛角蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2243258355840225", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2243258355840225", "author": "許再文", "timestamp": "", "text": "許再文的貼文", "images": ["2243258355840225/42e188565071b64b.jpg"], "species": "刺蝶角蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "516069885225756", "post_url": "https://www.facebook.com/groups/483678968464848/posts/516069885225756", "author": "秋寒煙", "timestamp": "", "text": "秋寒煙的貼文", "images": ["516069885225756/eae4169dfee23771.jpg"], "species": "褐頂蝶角蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "498255990340479", "post_url": "https://www.facebook.com/groups/483678968464848/posts/498255990340479", "author": "Fly Liu", "timestamp": "", "text": "剛剛飛進辦公室的...請問牠是誰?? (跟我以前看過的長蛟蛉不同)\n---新竹縣竹東鎮", "images": ["498255990340479/ca21b593b7e9b803.jpg"], "species": "刺蝶角蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "656163401216403", "post_url": "https://www.facebook.com/groups/483678968464848/posts/656163401216403", "author": "Welson Xiong", "timestamp": "", "text": "0160722@大崙尾山親山步道", "images": ["656163401216403/39f71a3548ad4d49.jpg"], "species": "蝶角蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "619765784856165", "post_url": "https://www.facebook.com/groups/483678968464848/posts/619765784856165", "author": "羅美玲", "timestamp": "", "text": "羅美玲的貼文", "images": ["619765784856165/1196efe1c0442729.jpg"], "species": "台灣蝶角蛉幼蟲", "location": "", "category": "wild_taiwan"}, {"post_id": "832176060281802", "post_url": "https://www.facebook.com/groups/483678968464848/posts/832176060281802", "author": "羅美玲", "timestamp": "", "text": "羅美玲的貼文", "images": ["832176060281802/5854b19f1577af9a.jpg", "832176060281802/1089e6ce3f9abde9.jpg", "832176060281802/1a77661562e7367c.jpg"], "species": "Maezous sp.", "location": "", "category": "wild_taiwan"}, {"post_id": "1174937869338951", "post_url": "https://www.facebook.com/groups/483678968464848/posts/1174937869338951", "author": "韓羲之", "timestamp": "", "text": "韓羲之的貼文", "images": ["1174937869338951/96e510b5427c33dd.jpg"], "species": "Maezous sp.", "location": "", "category": "wild_taiwan"}, {"post_id": "821389931360415", "post_url": "https://www.facebook.com/groups/483678968464848/posts/821389931360415", "author": "賴保成", "timestamp": "", "text": "賴保成的貼文", "images": ["821389931360415/b75a9fa62009f215.jpg", "821389931360415/ffd8e8451298319c.jpg"], "species": "", "location": "", "category": "wild_taiwan"}, {"post_id": "663261670506576", "post_url": "https://www.facebook.com/groups/483678968464848/posts/663261670506576", "author": "胡芳碩", "timestamp": "", "text": "胡芳碩的貼文", "images": ["663261670506576/1400c21daac5d818.jpg", "663261670506576/5c6a85c211342622.jpg"], "species": "台灣螳蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "664946613671415", "post_url": "https://www.facebook.com/groups/483678968464848/posts/664946613671415", "author": "羅美玲", "timestamp": "", "text": "今天撿到三個高腳蛛卵囊 兩個裏頭的螳蛉繭都已羽化", "images": ["664946613671415/37a5481deadf582e.jpg", "664946613671415/76ae84b6898edb3d.jpg"], "species": "台灣螳蛉幼蟲", "location": "", "category": "wild_taiwan"}, {"post_id": "668104710022272", "post_url": "https://www.facebook.com/groups/483678968464848/posts/668104710022272", "author": "羅美玲", "timestamp": "", "text": "今天羽化了三隻", "images": ["668104710022272/e6937ba4badaf440.jpg", "668104710022272/4c3623a01000836e.jpg", "668104710022272/029a416ff0ad8950.jpg"], "species": "台灣螳蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "886902501475824", "post_url": "https://www.facebook.com/groups/483678968464848/posts/886902501475824", "author": "羅美玲", "timestamp": "", "text": "羅美玲的貼文", "images": ["886902501475824/6081e686aa62c162.jpg"], "species": "台灣螳蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "492983534201058", "post_url": "https://www.facebook.com/groups/483678968464848/posts/492983534201058", "author": "李思霖", "timestamp": "", "text": "李思霖的貼文", "images": ["492983534201058/e6d2e9e1d9b70849.jpg"], "species": "台灣優螳蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "526956174137127", "post_url": "https://www.facebook.com/groups/483678968464848/posts/526956174137127", "author": "羅美玲", "timestamp": "", "text": "羅美玲的貼文", "images": ["526956174137127/f5b984277ab4c738.jpg", "526956174137127/e835261a976dfa14.jpg", "526956174137127/6422c6f8c1be2440.jpg", "526956174137127/6375e34e09109e58.jpg", "526956174137127/c2e7967fa1158373.jpg"], "species": "", "location": "", "category": "wild_taiwan"}, {"post_id": "1374591282706941", "post_url": "https://www.facebook.com/groups/483678968464848/posts/1374591282706941", "author": "羅美玲", "timestamp": "", "text": "今年第一次撿拾", "images": ["1374591282706941/84e0deecfef504dd.jpg"], "species": "", "location": "", "category": "wild_taiwan"}, {"post_id": "2704980759667980", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2704980759667980", "author": "周年富", "timestamp": "", "text": "周年富的貼文", "images": ["2704980759667980/f5123525b93c85f2.jpg"], "species": "狹翅褐蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2081484035350992", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2081484035350992", "author": "詹愷崴", "timestamp": "", "text": "詹愷崴的貼文", "images": ["2081484035350992/fc978b77637c4929.jpg"], "species": "脈褐蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2708800292619360", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2708800292619360", "author": "Tyus Ma", "timestamp": "", "text": "2023.9.18鴛鴦湖工作站", "images": ["2708800292619360/7d26420eab7ae7a2.jpg"], "species": "翼蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "1324893927676677", "post_url": "https://www.facebook.com/groups/483678968464848/posts/1324893927676677", "author": "邱麗卿", "timestamp": "", "text": "邱麗卿的貼文", "images": ["1324893927676677/9c486a33e2381c1b.jpg"], "species": "翼蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2822908587875196", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2822908587875196", "author": "胡芳碩", "timestamp": "", "text": "因為長得這麼奇葩所以一直在我的願望清單裡", "images": ["2822908587875196/c77aad3cb48a4a31.jpg"], "species": "", "location": "", "category": "wild_taiwan"}, {"post_id": "501202280045850", "post_url": "https://www.facebook.com/groups/483678968464848/posts/501202280045850", "author": "Suede Chen", "timestamp": "", "text": "請教種名?", "images": ["501202280045850/dab79c71bd0db8bc.jpg"], "species": "大斑翼蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "620816401417770", "post_url": "https://www.facebook.com/groups/483678968464848/posts/620816401417770", "author": "Tyus Ma", "timestamp": "", "text": "求名", "images": ["620816401417770/de196dde5b419fd6.jpg"], "species": "翼蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "625823317583745", "post_url": "https://www.facebook.com/groups/483678968464848/posts/625823317583745", "author": "Lacewing Chrysophidae", "timestamp": "", "text": "話說各位最近經常看到的這種翼蛉目前只能確定是 Spilosmylus sp. 特徵為翅脈淺黃色至黃褐色 前翅後緣的一對黑點 最近發現好像有兩個種 主要差在黑點形狀略有不同 而且都產於低海拔近郊平原或丘陵 若各位方便可幫忙保留樣本 (不過我還是比較需要草蛉) 確定之後再跟大家分享 謝謝各位\n2016.V.1 富陽公園", "images": ["625823317583745/3ddc9baee14cbdbe.jpg"], "species": "小點翼蛉", "location": "五峰旗", "category": "wild_taiwan"}, {"post_id": "1293222517510485", "post_url": "https://www.facebook.com/groups/483678968464848/posts/1293222517510485", "author": "詹愷崴", "timestamp": "", "text": "詹愷崴的貼文", "images": ["1293222517510485/236743d263e1fcc2.jpg"], "species": "翼蛉幼蟲", "location": "", "category": "wild_taiwan"}, {"post_id": "494059387426806", "post_url": "https://www.facebook.com/groups/483678968464848/posts/494059387426806", "author": "何季耕", "timestamp": "", "text": "何季耕的貼文", "images": ["494059387426806/fa0508400af8fb03.jpg"], "species": "後緣斑褐蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "887800184719389", "post_url": "https://www.facebook.com/groups/483678968464848/posts/887800184719389", "author": "林暐倫", "timestamp": "", "text": "蘭嶼不知名蝶角蛉", "images": ["887800184719389/be571c19cf59379d.jpg", "887800184719389/fcf941180b57925e.jpg"], "species": "褐頂蝶角蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "489541507878594", "post_url": "https://www.facebook.com/groups/483678968464848/posts/489541507878594", "author": "黃文俊", "timestamp": "", "text": "拍照干擾時會移到枝條另一方躲避", "images": ["489541507878594/acf56d71186db470.jpg"], "species": "蟻蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "3542796972553017", "post_url": "https://www.facebook.com/groups/483678968464848/posts/3542796972553017", "author": "李淳澈", "timestamp": "", "text": "李淳澈的貼文", "images": ["3542796972553017/1726d575fd712194.jpg", "3542796972553017/49d27232302296ff.jpg"], "species": "", "location": "", "category": "wild_taiwan"}, {"post_id": "2183795931786468", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2183795931786468", "author": "Tyus Ma", "timestamp": "", "text": "粉蛉幼蟲", "images": ["2183795931786468/ef7a480c789ffcb5.jpg"], "species": "粉蛉幼蟲", "location": "", "category": "wild_taiwan"}, {"post_id": "3213148715517846", "post_url": "https://www.facebook.com/groups/483678968464848/posts/3213148715517846", "author": "連祐德", "timestamp": "", "text": "連祐德的貼文", "images": ["3213148715517846/9063cf35150a1306.jpg"], "species": "魚蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "618873148278762", "post_url": "https://www.facebook.com/groups/483678968464848/posts/618873148278762", "author": "Hua-Te Fang", "timestamp": "", "text": "請教種類，感謝。", "images": ["618873148278762/6b20dbbda403cf51.jpg"], "species": "污翅斑魚蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "1160817287417676", "post_url": "https://www.facebook.com/groups/483678968464848/posts/1160817287417676", "author": "黃棕堡", "timestamp": "", "text": "黃棕堡的貼文", "images": ["1160817287417676/2f29ce1045fbfc4c.jpg"], "species": "瑪草蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "847829142049827", "post_url": "https://www.facebook.com/groups/483678968464848/posts/847829142049827", "author": "Tyus Ma", "timestamp": "", "text": "Tyus Ma 的貼文", "images": ["847829142049827/8ff922861951a2bf.jpg"], "species": "褐頂蝶角蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "1988227584676638", "post_url": "https://www.facebook.com/groups/483678968464848/posts/1988227584676638", "author": "Lily Chuang", "timestamp": "", "text": "趨光性飛入室內", "images": ["1988227584676638/7aa0190b6a0c7962.jpg", "1988227584676638/5b04ae19ab9b2e31.jpg"], "species": "草蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "1738656412967091", "post_url": "https://www.facebook.com/groups/483678968464848/posts/1738656412967091", "author": "廖文泉", "timestamp": "", "text": "特生烏石坑試驗站", "images": ["1738656412967091/f6f0319d926e1dc6.jpg"], "species": "台灣優螳蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "1495880963911305", "post_url": "https://www.facebook.com/groups/483678968464848/posts/1495880963911305", "author": "李志穎", "timestamp": "", "text": "李志穎的貼文", "images": ["1495880963911305/3beb40839da1db75.jpg"], "species": "草蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "1742209809278418", "post_url": "https://www.facebook.com/groups/483678968464848/posts/1742209809278418", "author": "Jyh Jong Cherng", "timestamp": "", "text": "請教草蛉? (雌蟲)", "images": ["1742209809278418/e953a6a35ee22d87.jpg"], "species": "草蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "605482522951158", "post_url": "https://www.facebook.com/groups/483678968464848/posts/605482522951158", "author": "Adam Hsu", "timestamp": "", "text": "Chrysopa sp 草蛉(種名?)  \n20160331 北坑溪", "images": ["605482522951158/e6f0a6e91b0c9919.jpg"], "species": "草蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2308494289316631", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2308494289316631", "author": "Jyh Jong Cherng", "timestamp": "", "text": "Myrmeleon persimilis Miller & Stange, 1999 臀腋蟻蛉\n2014.07.02 澎湖縣湖西鄉隘門村", "images": ["2308494289316631/3535ff51ddd82a2a.jpg"], "species": "蟻蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "907511086081632", "post_url": "https://www.facebook.com/groups/483678968464848/posts/907511086081632", "author": "賴保成", "timestamp": "", "text": "賴保成的貼文", "images": ["907511086081632/105cd50aafb36a82.jpg"], "species": "", "location": "", "category": "wild_taiwan"}, {"post_id": "815229531976455", "post_url": "https://www.facebook.com/groups/483678968464848/posts/815229531976455", "author": "詹愷崴", "timestamp": "", "text": "詹愷崴的貼文", "images": ["815229531976455/34f8a29648f4e8e8.jpg"], "species": "蟻蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2315540951945298", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2315540951945298", "author": "郑昱辰", "timestamp": "", "text": "郑昱辰的貼文", "images": ["2315540951945298/d62c20aa8d035a01.jpg"], "species": "", "location": "", "category": "wild_taiwan"}, {"post_id": "1732847426881323", "post_url": "https://www.facebook.com/groups/483678968464848/posts/1732847426881323", "author": "王士豪", "timestamp": "", "text": "未採集僅拍照做紀錄", "images": ["1732847426881323/d7e856c46cfbade8.jpg", "1732847426881323/c08f213ab2d5f676.jpg"], "species": "胸紋蟻蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2009700279196035", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2009700279196035", "author": "Jyh Jong Cherng", "timestamp": "", "text": "由新到舊", "images": ["2009700279196035/7eae28c5ef5b3a74.jpg"], "species": "蟻蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "1954834721349258", "post_url": "https://www.facebook.com/groups/483678968464848/posts/1954834721349258", "author": "簡廷仰", "timestamp": "", "text": "簡廷仰的貼文", "images": ["1954834721349258/88c12509b37445b3.jpg", "1954834721349258/bffdec96f50797d2.jpg"], "species": "雙斑蟻蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2561414560691268", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2561414560691268", "author": "羅美玲", "timestamp": "", "text": "羅美玲的貼文", "images": ["2561414560691268/192b84abbebdd8c5.jpg", "2561414560691268/3ffaa1f42304cde8.jpg", "2561414560691268/0a569d05c374618f.jpg", "2561414560691268/da1736cf2cdc7483.jpg", "2561414560691268/a7cc48864609f4f5.jpg"], "species": "", "location": "", "category": "wild_taiwan"}, {"post_id": "1684419651724101", "post_url": "https://www.facebook.com/groups/483678968464848/posts/1684419651724101", "author": "Jyh Jong Cherng", "timestamp": "", "text": "20200614 金門縣金湖鎮海濱\nMyrmeleon persimilis 臀腋蟻蛉", "images": ["1684419651724101/bcd787932b5ccaa2.jpg"], "species": "蟻蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "1684377041728362", "post_url": "https://www.facebook.com/groups/483678968464848/posts/1684377041728362", "author": "Jyh Jong Cherng", "timestamp": "", "text": "20200612 烈嶼海濱\nMyrmeleon persimilis 臀腋蟻蛉", "images": ["1684377041728362/7de0f942bd22cae7.jpg"], "species": "蟻蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2323273334505393", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2323273334505393", "author": "林玉米", "timestamp": "", "text": "林玉米的貼文", "images": ["2323273334505393/66858217fa5ccae1.jpg"], "species": "蟻蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "1349897971842939", "post_url": "https://www.facebook.com/groups/483678968464848/posts/1349897971842939", "author": "簡廷仰", "timestamp": "", "text": "簡廷仰的貼文", "images": ["1349897971842939/acd055b83be20a2f.jpg"], "species": "蟻蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "1692748670891199", "post_url": "https://www.facebook.com/groups/483678968464848/posts/1692748670891199", "author": "Jyh Jong Cherng", "timestamp": "", "text": "20200613 烈嶼海濱\nMyrmeleon persimilis 臀腋蟻蛉", "images": ["1692748670891199/62947b050e5cae04.jpg"], "species": "蟻蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "488595697973175", "post_url": "https://www.facebook.com/groups/483678968464848/posts/488595697973175", "author": "Tu Manling", "timestamp": "", "text": "這兩個禮拜在政大山上宿舍撿到的~~", "images": ["488595697973175/2b7004f7d534422b.jpg", "488595697973175/39c92a5f8e7cfb89.jpg", "488595697973175/d078d52139cee57e.jpg"], "species": "刺蝶角蛉/褐頂蝶角蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "488127321353346", "post_url": "https://www.facebook.com/groups/483678968464848/posts/488127321353346", "author": "莊棨州", "timestamp": "", "text": "莊棨州的貼文", "images": ["488127321353346/2dbae9afe490e6ff.jpg"], "species": "蝶角蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "489168081249270", "post_url": "https://www.facebook.com/groups/483678968464848/posts/489168081249270", "author": "莊棨州", "timestamp": "", "text": "莊棨州的貼文", "images": ["489168081249270/5e3208ec7e1a101c.jpg"], "species": "蝶角蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "485501131615965", "post_url": "https://www.facebook.com/groups/483678968464848/posts/485501131615965", "author": "Rj Chen", "timestamp": "", "text": "請教？", "images": ["485501131615965/31af6b26a47cb351.jpg"], "species": "蝶角蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2590208451145212", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2590208451145212", "author": "Jyh Jong Cherng", "timestamp": "", "text": "並非 Necyla formosana，謝謝保成兄。", "images": ["2590208451145212/a239621b1ccef9f6.jpg"], "species": "日本螳蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2221083008057760", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2221083008057760", "author": "范芮祥", "timestamp": "", "text": "范芮祥的貼文", "images": ["2221083008057760/c674722fa7929424.jpg"], "species": "黑色螳蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "10153048805388393", "post_url": "https://www.facebook.com/groups/483678968464848/posts/10153048805388393", "author": "Sara Klips", "timestamp": "", "text": "Sara Klips 的貼文", "images": ["10153048805388393/33cf432439928dce.jpg", "10153048805388393/405a612261d11279.jpg", "10153048805388393/8f0594d474ff6fdf.jpg", "10153048805388393/4ad4511cfc87a3d0.jpg", "10153048805388393/67327c7422e75eea.jpg"], "species": "", "location": "", "category": "wild_taiwan"}, {"post_id": "524169631082448", "post_url": "https://www.facebook.com/groups/483678968464848/posts/524169631082448", "author": "劉森榮", "timestamp": "", "text": "劉森榮的貼文", "images": ["524169631082448/d89b902b694c00b1.jpg"], "species": "螳蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "924644377701636", "post_url": "https://www.facebook.com/groups/483678968464848/posts/924644377701636", "author": "Otto Lee", "timestamp": "", "text": "請教是Mantispa 嗎？種類？2004@大漢山林道", "images": ["924644377701636/bea82d7ecc08026b.jpg"], "species": "螳蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "1022944907871582", "post_url": "https://www.facebook.com/groups/483678968464848/posts/1022944907871582", "author": "李潛龍", "timestamp": "", "text": "李潛龍的貼文", "images": ["1022944907871582/fe82898ada62daf6.jpg"], "species": "螳蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "1921166811382716", "post_url": "https://www.facebook.com/groups/483678968464848/posts/1921166811382716", "author": "謝侑廷", "timestamp": "", "text": "謝侑廷的貼文", "images": ["1921166811382716/299372b40cbe70dc.jpg"], "species": "草蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "909122955920445", "post_url": "https://www.facebook.com/groups/483678968464848/posts/909122955920445", "author": "廖文泉", "timestamp": "", "text": "廖文泉的貼文", "images": ["909122955920445/33f6ae21c32f409e.jpg"], "species": "草蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2103099306522798", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2103099306522798", "author": "Young-Fa Chen", "timestamp": "", "text": "同一隻個體", "images": ["2103099306522798/c007504e59f54259.jpg", "2103099306522798/cdd6992f3dd2e9f5.jpg", "2103099306522798/392d32125d41dc82.jpg"], "species": "草蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2005691582930238", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2005691582930238", "author": "李世賢", "timestamp": "", "text": "李世賢的貼文", "images": ["2005691582930238/86588112fe947c78.jpg", "2005691582930238/9b0d092aeb9fef8a.jpg"], "species": "草蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "937872776378796", "post_url": "https://www.facebook.com/groups/483678968464848/posts/937872776378796", "author": "謝智偉", "timestamp": "", "text": "謝智偉的貼文", "images": ["937872776378796/e3a23e6a3af1f91c.jpg"], "species": "草蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "1823960024436729", "post_url": "https://www.facebook.com/groups/483678968464848/posts/1823960024436729", "author": "BlackDog Lee", "timestamp": "", "text": "請教蟲名", "images": ["1823960024436729/d5088bf3120b1d1b.jpg"], "species": "草蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "892724287560312", "post_url": "https://www.facebook.com/groups/483678968464848/posts/892724287560312", "author": "莊棨州", "timestamp": "", "text": "莊棨州的貼文", "images": ["892724287560312/23bd11197a173a49.jpg"], "species": "草蛉卵", "location": "", "category": "wild_taiwan"}, {"post_id": "586452114854199", "post_url": "https://www.facebook.com/groups/483678968464848/posts/586452114854199", "author": "劉森榮", "timestamp": "", "text": "劉森榮的貼文", "images": ["586452114854199/8299633d299d557b.jpg"], "species": "草蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "588080184691392", "post_url": "https://www.facebook.com/groups/483678968464848/posts/588080184691392", "author": "李志穎", "timestamp": "", "text": "李志穎的貼文", "images": ["588080184691392/1948b7bd94ea74a0.jpg"], "species": "草蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "626593800840030", "post_url": "https://www.facebook.com/groups/483678968464848/posts/626593800840030", "author": "羅美玲", "timestamp": "", "text": "羅美玲的貼文", "images": ["626593800840030/4dec7dc4fe94b7f5.jpg"], "species": "草蛉幼蟲", "location": "", "category": "wild_taiwan"}, {"post_id": "504328399733238", "post_url": "https://www.facebook.com/groups/483678968464848/posts/504328399733238", "author": "梁大米", "timestamp": "", "text": "梁大米的貼文", "images": ["504328399733238/787b37d66b1d7bee.jpg"], "species": "草蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "789903397842402", "post_url": "https://www.facebook.com/groups/483678968464848/posts/789903397842402", "author": "劉森榮", "timestamp": "", "text": "劉森榮的貼文", "images": ["789903397842402/002750fb1d08faa2.jpg"], "species": "草蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "2016521561847240", "post_url": "https://www.facebook.com/groups/483678968464848/posts/2016521561847240", "author": "Hweishan Lai", "timestamp": "", "text": "由新到舊", "images": ["2016521561847240/cba36955f1bfc69f.jpg"], "species": "草蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "520115611487850", "post_url": "https://www.facebook.com/groups/483678968464848/posts/520115611487850", "author": "羅美玲", "timestamp": "", "text": "羅美玲的貼文", "images": ["520115611487850/16f92f4f9ef93696.jpg"], "species": "草蛉幼蟲", "location": "", "category": "wild_taiwan"}, {"post_id": "3364269330405783", "post_url": "https://www.facebook.com/groups/483678968464848/posts/3364269330405783", "author": "劉志郁", "timestamp": "", "text": "救下蛛網突飛入似紅尾蛛蜂的牠", "images": ["3364269330405783/963b046c0a868254.jpg", "3364269330405783/6640738e34486003.jpg", "3364269330405783/a5cb0b634aa1c631.jpg", "3364269330405783/311cb1b0863381d0.jpg", "3364269330405783/d5515abf14cec8c2.jpg"], "species": "螳蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "3542527489246632", "post_url": "https://www.facebook.com/groups/483678968464848/posts/3542527489246632", "author": "施禮正", "timestamp": "", "text": "施禮正的貼文", "images": ["3542527489246632/7e91ef97b23e2aef.jpg"], "species": "褐蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "3524866014346113", "post_url": "https://www.facebook.com/groups/483678968464848/posts/3524866014346113", "author": "高玉玲", "timestamp": "", "text": "高玉玲的貼文", "images": ["3524866014346113/30067166b8f8d3e5.jpg", "3524866014346113/94389f9f41d5b071.jpg"], "species": "斑魚蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "3395708053928577", "post_url": "https://www.facebook.com/groups/483678968464848/posts/3395708053928577", "author": "李政億", "timestamp": "", "text": "李政億的貼文", "images": ["3395708053928577/bf8c28e7f9d3bfbb.jpg"], "species": "褐蛉", "location": "", "category": "wild_taiwan"}, {"post_id": "3433064973526218", "post_url": "https://www.facebook.com/groups/483678968464848/posts/3433064973526218", "author": "劉志郁", "timestamp": "", "text": "劉志郁的貼文", "images": ["3433064973526218/bcce65febd445a15.jpg", "3433064973526218/d11c56840e400f06.jpg", "3433064973526218/0b6d47e284527567.jpg", "3433064973526218/faafbfa3d13b6def.jpg", "3433064973526218/77b62a4c82f01c25.jpg"], "species": "褐蛉", "location": "", "category": "wild_taiwan"}];
+
+// ── State ──
+let activeCategory = "all";
+let activeSpecies  = null;
+let searchQuery    = "";
+
+// ── Category counts ──
+function getCategoryCounts() {
+  const counts = { all: 0 };
+  for (const p of POSTS) {
+    counts.all++;
+    const cat = p.category || "other";
+    counts[cat] = (counts[cat] || 0) + 1;
+  }
+  return counts;
+}
+
+const CAT_LABELS = {
+  all:         "全部",
+  wild_taiwan: "🌿 野外台灣",
+  captive:     "🏠 人工飼養",
+  larva:       "🐛 幼期紀錄",
+  other:       "💬 其他",
+};
+
+// ── Family groups (toggle) ──
+function buildFilterLists() {
+  // Category list
+  const catCounts = getCategoryCounts();
+  const catEl = document.getElementById("cat-list");
+  catEl.innerHTML = Object.entries(CAT_LABELS).map(([key, label]) => {
+    const n = catCounts[key] || 0;
+    if (key !== "all" && n === 0) return "";
+    return `<li data-cat="${key}" class="${key==="all"?"active":""}" onclick="selectCat('${key}')">
+      <span>${label}</span><span class="count">${n}</span>
+    </li>`;
+  }).join("");
+
+  buildFamilyGroups();
+}
+
+function buildFamilyGroups() {
+  // Compute species counts in current category filter
+  const filtered = activeCategory === "all"
+    ? POSTS
+    : POSTS.filter(p => (p.category || "other") === activeCategory);
+
+  const speciesCounts = {};
+  for (const p of filtered) {
+    if (!p.species) continue;
+    speciesCounts[p.species] = (speciesCounts[p.species] || 0) + 1;
+  }
+
+  // Group by family
+  const familyMap = {};
+  for (const [sp, cnt] of Object.entries(speciesCounts)) {
+    const fam = speciesFamily(sp);
+    if (!familyMap[fam]) familyMap[fam] = [];
+    familyMap[fam].push({ sp, cnt });
+  }
+
+  // Sort species within each family by count
+  for (const fam of Object.keys(familyMap)) {
+    familyMap[fam].sort((a, b) => b.cnt - a.cnt);
+  }
+
+  // Sort families by total count
+  const sortedFamilies = Object.entries(familyMap)
+    .sort((a, b) => b[1].reduce((s, x) => s + x.cnt, 0) - a[1].reduce((s, x) => s + x.cnt, 0));
+
+  const container = document.getElementById("family-groups");
+  container.innerHTML = sortedFamilies.map(([fam, items]) => {
+    const total = items.reduce((s, x) => s + x.cnt, 0);
+    const hasActive = items.some(x => x.sp === activeSpecies);
+    const isOpen = hasActive || (sortedFamilies.length <= 3);
+    return `<div class="family-group ${isOpen ? 'open' : ''}" data-fam="${esc(fam)}">
+      <div class="family-header ${hasActive ? 'has-active' : ''}" onclick="toggleFamily(this)">
+        <span>${fam}</span>
+        <span class="family-count">${total}</span>
+        <span class="family-arrow">▶</span>
+      </div>
+      <div class="family-body">
+        ${items.map(({ sp, cnt }) => `
+          <div class="species-item ${sp === activeSpecies ? 'active' : ''}"
+               data-species="${esc(sp)}"
+               onclick="selectSpecies('${esc(sp)}')">
+            <span>${sp}</span><span class="count">${cnt}</span>
+          </div>`).join("")}
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function esc(s) { return s.replace(/'/g, "\'").replace(/"/g, "&quot;"); }
+
+function toggleFamily(header) {
+  const group = header.parentElement;
+  group.classList.toggle("open");
+}
+
+function speciesFamily(sp) {
+  const FAMILY_KEYWORDS = {"草蛉科 Chrysopidae": ["草蛉", "Chrysopa", "Chrysoperla", "Chrysocerca", "Dichochrysa", "Mallada"], "蟻蛉科 Myrmeleontidae": ["蟻蛉", "蟻獅", "長角蛉", "Myrmeleon", "Baliga", "Distoleon", "Paraglenurus", "Synclisis", "Suphalomitus", "Maezous", "Macronemurus", "蝶角蛉亞科"], "蝶角蛉科 Ascalaphidae": ["蝶角蛉", "Ascalaphus", "Ascalaphinae", "Elbella", "Suhpalacsa", "Ascalobyas"], "齒蛉科 Corydalidae": ["齒蛉", "魚蛉", "Protohermes", "Neochauliodes", "Parachauliodes", "Corydalus", "廣翅目"], "螳蛉科 Mantispidae": ["螳蛉", "Mantispa", "Necyla", "Mantispilla", "Ditaxis"], "褐蛉科 Hemerobiidae": ["褐蛉", "Micromus", "Notiobiella", "Zachobiella", "Hemerobius", "Drepanacra", "Psectra"], "翼蛉科 Osmylidae": ["翼蛉", "Osmylus", "Spilosmylus", "Gryposmylus"], "粉蛉科 Coniopterygidae": ["粉蛉", "Coniopteryx", "Aleuropteryx", "Semidalis"], "蛾蛉科 Psychopsidae": ["蛾蛉", "Psychopsis", "Psychopsiella"], "旌蛉科 Nemopteridae": ["旌蛉", "Nemoptera", "Lertha"], "櫛角蛉科 Dilaridae": ["櫛角蛉", "Dilar"], "幼蟲": ["幼蟲", "蟻獅幼蟲", "larva", "幼期"]};
+  for (const [fam, kws] of Object.entries(FAMILY_KEYWORDS)) {
+    for (const kw of kws) {
+      if (sp.toLowerCase().includes(kw.toLowerCase())) return fam;
+    }
+  }
+  return "其他";
+}
+
+// ── Filtering ──
+function selectCat(cat) {
+  activeCategory = cat;
+  activeSpecies = null;
+  document.querySelectorAll(".cat-list li").forEach(el => {
+    el.classList.toggle("active", el.dataset.cat === cat);
+  });
+  buildFamilyGroups();
+  renderGrid();
+}
+
+function selectSpecies(sp) {
+  if (activeSpecies === sp) {
+    activeSpecies = null;
+  } else {
+    activeSpecies = sp;
+  }
+  buildFamilyGroups();
+  renderGrid();
+}
+
+function filterPosts() {
+  return POSTS.filter(p => {
+    if (activeCategory !== "all" && (p.category || "other") !== activeCategory) return false;
+    if (activeSpecies && p.species !== activeSpecies) return false;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      const hay = [p.species, p.location, p.text, p.author].join(" ").toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function renderGrid() {
+  const posts = filterPosts();
+  const grid = document.getElementById("grid");
+  document.getElementById("empty").style.display = posts.length ? "none" : "block";
+
+  grid.innerHTML = posts.map((p, idx) => {
+    const realIdx = POSTS.indexOf(p);
+    const imgEl = p.images && p.images.length
+      ? `<img class="card-img" src="images/${p.images[0]}" alt="" loading="lazy" onerror="this.style.display='none'">`
+      : `<div class="card-no-img">🦟</div>`;
+    const ts = p.timestamp ? p.timestamp.slice(0, 10) : "";
+    const fam = speciesFamily(p.species || "");
+    return `<div class="card" onclick="openModal(${realIdx})">
+      ${imgEl}
+      <div class="card-body">
+        <div class="card-species">${p.species || "（物種未知）"}</div>
+        <div class="card-family">${fam !== "其他" ? fam.split(" ")[0] : ""}</div>
+        ${p.location ? `<div class="card-location">${p.location}</div>` : ""}
+        <div class="card-text">${p.text || ""}</div>
+        <div class="card-meta">
+          <span>${p.author || ""}</span>
+          <span>${ts}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function openModal(idx) {
+  const p = POSTS[idx];
+  document.getElementById("modal-species").textContent = p.species || "（物種未知）";
+  document.getElementById("modal-meta").innerHTML = [
+    p.location ? `📍 ${p.location}` : "",
+    p.author   ? `👤 ${p.author}`   : "",
+    p.timestamp ? `🗓 ${p.timestamp.slice(0,10)}` : "",
+  ].filter(Boolean).join(" &nbsp;·&nbsp; ");
+  document.getElementById("modal-text").textContent = p.text || "";
+  const link = document.getElementById("modal-link");
+  link.href = p.post_url || "#";
+  link.style.display = p.post_url ? "inline-block" : "none";
+  const imgs = document.getElementById("modal-imgs");
+  imgs.innerHTML = (p.images || []).map(fn =>
+    `<img src="images/${fn}" alt="">`
+  ).join("");
+  imgs.style.display = (p.images || []).length ? "flex" : "none";
+  document.getElementById("modal-overlay").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById("modal-overlay") && e.target.id !== "modal-close") return;
+  document.getElementById("modal-overlay").classList.remove("open");
+  document.body.style.overflow = "";
+}
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+
+document.getElementById("search").addEventListener("input", e => {
+  searchQuery = e.target.value;
+  renderGrid();
+});
+
+buildFilterLists();
+renderGrid();
+</script>
+</body>
+</html>
