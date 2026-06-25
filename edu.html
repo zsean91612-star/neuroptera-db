@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>精選辨識紀錄 — 台灣脈翅目觀察資料庫</title>
+<style>
+  :root{--bg:#f4faf7;--card:#fff;--accent:#2d7a5a;--al:#e8f5ef;--a2:#1a5c3f;--tx:#1a3328;--mu:#5a8070;--bd:#c5ddd4;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--tx);}
+  header{background:var(--accent);color:#fff;padding:.75rem 1.3rem;display:flex;align-items:center;gap:1rem;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2);}
+  header h1{font-size:1.1rem;font-weight:700;}
+  header .sub{font-size:.78rem;opacity:.85;}
+  .nav{margin-left:auto;display:flex;gap:.55rem;}
+  .nav a{color:rgba(255,255,255,.82);text-decoration:none;font-size:.82rem;padding:.22rem .62rem;border-radius:999px;border:1px solid rgba(255,255,255,.35);}
+  .nav a:hover,.nav a.active{background:rgba(255,255,255,.2);color:#fff;}
+  main{max-width:860px;margin:0 auto;padding:1.5rem 1rem 3rem;}
+  .page-title{font-size:1.35rem;font-weight:700;color:var(--accent);margin-bottom:.25rem;}
+  .page-sub{color:var(--mu);font-size:.88rem;margin-bottom:1.4rem;}
+  .filter-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.2rem;}
+  .filt-btn{padding:.25rem .7rem;border-radius:999px;border:1.5px solid var(--bd);background:var(--card);font-size:.78rem;cursor:pointer;color:var(--tx);transition:all .12s;}
+  .filt-btn:hover,.filt-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .edu-card{background:var(--card);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin-bottom:1.2rem;box-shadow:0 1px 5px rgba(0,0,0,.06);display:flex;gap:0;}
+  .edu-img{width:140px;min-width:140px;background:#111;position:relative;}
+  .edu-img img{width:100%;height:100%;object-fit:cover;display:block;}
+  .edu-img-ph{width:100%;height:100%;min-height:130px;display:flex;align-items:center;justify-content:center;font-size:2.5rem;background:var(--al);}
+  .edu-body{flex:1;padding:1rem 1.1rem;min-width:0;}
+  .edu-top{display:flex;align-items:flex-start;gap:.6rem;margin-bottom:.5rem;flex-wrap:wrap;}
+  .edu-sp{font-size:1.05rem;font-weight:700;color:var(--a2);}
+  .edu-sci{font-size:.8rem;color:var(--mu);font-style:italic;}
+  .edu-family{font-size:.72rem;background:var(--al);color:var(--a2);padding:.1rem .45rem;border-radius:999px;border:1px solid #b2dfcf;}
+  .conf-badge{font-size:.7rem;padding:.1rem .42rem;border-radius:999px;margin-left:auto;}
+  .conf-hi{background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;}
+  .conf-md{background:#fff3e0;color:#8c4e00;border:1px solid #ffcc80;}
+  .edu-evidence{font-size:.84rem;line-height:1.7;color:var(--tx);background:var(--al);border-left:3px solid var(--accent);padding:.6rem .85rem;border-radius:0 8px 8px 0;margin-bottom:.65rem;}
+  .edu-evidence strong{color:var(--a2);}
+  .edu-footer{display:flex;align-items:center;gap:.7rem;}
+  .edu-author{font-size:.76rem;color:var(--mu);}
+  .edu-link{font-size:.78rem;color:var(--accent);text-decoration:none;padding:.2rem .55rem;border:1px solid var(--bd);border-radius:6px;}
+  .edu-link:hover{background:var(--al);}
+  .empty{text-align:center;color:var(--mu);padding:3rem;}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>🦋 台灣脈翅目觀察資料庫</h1>
+    <div class="sub">脈翅目、廣翅目野外觀察紀錄</div>
+  </div>
+  <nav class="nav">
+    <a href="index.html">野外觀察紀錄</a>
+    <a href="species.html">物種圖鑑</a>
+    <a href="edu.html" class="active">精選辨識</a>
+    <a href="quiz.html">物種測驗</a>
+  </nav>
+</header>
+<main>
+  <div class="page-title">🔬 精選辨識紀錄</div>
+  <div class="page-sub">由蕭世祥、賴保成、莊棨州、林育脩等專家確認並說明辨識依據的代表性觀察紀錄</div>
+  <div class="filter-row" id="filters"></div>
+  <div id="cards"><div class="edu-card" data-fam="蝶角蛉科 Ascalaphidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/641779652654778/9f5c6ac7514ec795.jpg" alt="蝶角蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">蝶角蛉</div>
+        <div class="edu-sci">Acheron trux</div>
+      </div>
+      <span class="edu-family">蝶角蛉科 Ascalaphidae</span>
+      <span class="conf-badge conf-hi">信心 98%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>貼文「#刺蝶角蛉 (雌) Acheron trux (Walker, 1853) 在內溝山登山步道」，蕭世祥「#Acheron」</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 Welson Xiong · 📍 內溝山登山步道</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/641779652654778" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="蟻蛉科 Myrmeleontidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/548232215342856/e6972422c96f8fb7.jpg" alt="蟻蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">蟻蛉</div>
+        <div class="edu-sci">Dendroleon esbenpeterseni</div>
+      </div>
+      <span class="edu-family">蟻蛉科 Myrmeleontidae</span>
+      <span class="conf-badge conf-hi">信心 95%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>Jyh Jong Cherng鑑定「Dendroleon esbenpeterseni Miller &amp; Stange, 1999 少紋蟻蛉」，蕭世祥「#Dendroleon」</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 向高世</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/548232215342856" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="其他">
+  <div class="edu-img" style="min-height:130px"><img src="images/601029036729840/075ede54e36d275e.jpg" alt="草蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">草蛉</div>
+        <div class="edu-sci">Apochrysa matsumurae</div>
+      </div>
+      <span class="edu-family">其他</span>
+      <span class="conf-badge conf-hi">信心 95%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>貼文「南投縣竹山鎮，海拔約300m」，Lacewing Chrysophidae鑑定「Apochrysa matsumurae 松村氏網草蛉」，蕭世祥「#Apochrysa」</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 Young-Fa Chen · 📍 南投縣竹山鎮</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/601029036729840" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="草蛉科 Chrysopidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/544260155740062/91508ca2ed7596ed.jpg" alt="草蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">草蛉</div>
+        <div class="edu-sci">Ankylopteryx gracilis</div>
+      </div>
+      <span class="edu-family">草蛉科 Chrysopidae</span>
+      <span class="conf-badge conf-hi">信心 95%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>Lacewing Chrysophidae鑑定「Ankylopteryx gracilis Nakahara, 1955 優雅平翅草蛉」，蕭世祥「#Ankylopteryx」</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 羅美玲</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/544260155740062" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="草蛉科 Chrysopidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/1648870098612390/9e5a330fd2ab04ef.jpg" alt="草蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">草蛉</div>
+        <div class="edu-sci">Italochrysa japonica</div>
+      </div>
+      <span class="edu-family">草蛉科 Chrysopidae</span>
+      <span class="conf-badge conf-hi">信心 95%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>貼文「20200509、臺中市和平區松鶴部落」，蕭世祥「日本草蛉 Italochrysa japonica (McLachlan, 1875) #Italochrysa」</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 Ping Hua Chan · 📍 臺中市和平區松鶴部落</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/1648870098612390" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="草蛉科 Chrysopidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/2269607599871967/12cc40d50ef243d5.jpg" alt="草蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">草蛉</div>
+        <div class="edu-sci">Ankylopteryx octopunctata</div>
+      </div>
+      <span class="edu-family">草蛉科 Chrysopidae</span>
+      <span class="conf-badge conf-hi">信心 95%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>Lacewing Chrysophidae鑑定「Ankylopteryx octopunctata (Fabricius, 1793)」，台灣野外絹草蛉屬稀有種確認</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 林雅慧</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/2269607599871967" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="螳蛉科 Mantispidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/2609374405895283/9cca1ce8bfe619e0.jpg" alt="螳蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">螳蛉</div>
+        <div class="edu-sci">Necyla formosana</div>
+      </div>
+      <span class="edu-family">螳蛉科 Mantispidae</span>
+      <span class="conf-badge conf-hi">信心 95%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>浮水印「Photo by Hon 08'11 林口」，賴保成鑑定「Necyla formosana (Okamoto, 1910) 雌蟲」，圖示螳蛉困蜘蛛網</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 韓羲之 · 📍 林口</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/2609374405895283" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="草蛉科 Chrysopidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/1738666126299453/8d280c5cce67b9fe.jpg" alt="草蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">草蛉</div>
+        <div class="edu-sci">Italochrysa uchidae</div>
+      </div>
+      <span class="edu-family">草蛉科 Chrysopidae</span>
+      <span class="conf-badge conf-hi">信心 95%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>貼文「特生烏石坑試驗站」，廖文泉「紅痣草蛉 Italochrysa uchidae (Kuwayama, 1927)」，蕭世祥「#Italochrysa」</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 廖文泉 · 📍 特生烏石坑試驗站</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/1738666126299453" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="蝶角蛉科 Ascalaphidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/486490218183723/ada46766d9cf6693.jpg" alt="蝶角蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">蝶角蛉</div>
+        <div class="edu-sci">Ascalohybris subjacens</div>
+      </div>
+      <span class="edu-family">蝶角蛉科 Ascalaphidae</span>
+      <span class="conf-badge conf-hi">信心 95%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>貼文「2013.7.17 台東森永村」，莊棨州「應該是雌 褐頂蝶角蛉 Ascalohybris subjacens」，蕭世祥「#Ascalohybris」</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 Weiting Liu · 📍 台東森永村</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/486490218183723" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="齒蛉科 Corydalidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/558979297601481/e08f9803e36dbf6f.jpg" alt="星齒蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">星齒蛉</div>
+        <div class="edu-sci">Protohermes costalis</div>
+      </div>
+      <span class="edu-family">齒蛉科 Corydalidae</span>
+      <span class="conf-badge conf-hi">信心 95%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>「苗栗泰安」，Jyh Jong Cherng「Protohermes costalis (Walker, 1853)」，蕭世祥「#Protohermes」</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 Steve Chuang · 📍 苗栗泰安</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/558979297601481" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="其他">
+  <div class="edu-img" style="min-height:130px"><img src="images/2305078799658180/fe781205803dfbd1.jpg" alt="蟻蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">蟻蛉</div>
+        <div class="edu-sci">Nepsalus petrophila</div>
+      </div>
+      <span class="edu-family">其他</span>
+      <span class="conf-badge conf-hi">信心 95%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>林育脩鑑定「Nepsalus petrophila 麗紋蟻蛉/麗紋翠蟻蛉（原為Gatzara petrophila，近期被換屬）」，台灣野外新屬名確認</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 Yang Li-Ling</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/2305078799658180" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="齒蛉科 Corydalidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/596497130516364/4ce39b0b8b80030b.jpg" alt="魚蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">魚蛉</div>
+        <div class="edu-sci">Parachauliodes nebulosus</div>
+      </div>
+      <span class="edu-family">齒蛉科 Corydalidae</span>
+      <span class="conf-badge conf-hi">信心 95%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>Xingyue Liu鑑定「暗色准鱼蛉Parachauliodes nebulosus」，蕭世祥「#Parachauliodes」，台灣野外確認</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 廖文泉</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/596497130516364" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="褐蛉科 Hemerobiidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/2507959289370129/37fd89f3e6b5888c.jpg" alt="褐蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">褐蛉</div>
+        <div class="edu-sci">Micromus timidus</div>
+      </div>
+      <span class="edu-family">褐蛉科 Hemerobiidae</span>
+      <span class="conf-badge conf-hi">信心 95%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>蕭世祥鑑定「是褐蛉科 Micromus屬，應該就是Micromus timidus，幼蟲跑到裡面化蛹，羽化之後出不來的個體」，台灣野外稀有鑑定</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 林雅慧</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/2507959289370129" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="其他">
+  <div class="edu-img" style="min-height:130px"><img src="images/2393316707501055/014dbc65fe129262.jpg" alt="蟻蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">蟻蛉</div>
+        <div class="edu-sci">Gatzara petrophila</div>
+      </div>
+      <span class="edu-family">其他</span>
+      <span class="conf-badge conf-hi">信心 95%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>Jyh Jong Cherng鑑定「Gatzara petrophila 麗紋蟻蛉」，圖示大型蟻蛉四翅展開，虹光翅脈，趨光觀察，台灣稀有蟻蛉種</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 陳筱愉</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/2393316707501055" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="齒蛉科 Corydalidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/1046446925521380/b9e8775c6de8b73d.jpg" alt="魚蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">魚蛉</div>
+        <div class="edu-sci">Neochauliodes meridionalis</div>
+      </div>
+      <span class="edu-family">齒蛉科 Corydalidae</span>
+      <span class="conf-badge conf-hi">信心 95%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>賴保成鑑定「南方斑魚蛉 Neochauliodes meridionalis Weele, 1910」，蕭世祥「#Neochauliodes」</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 陳敬富</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/1046446925521380" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="蟻蛉科 Myrmeleontidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/2040772382755491/21d150f6e0bc859a.jpg" alt="蟻獅"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">蟻獅</div>
+        <div class="edu-sci">Myrmeleon taiwanensis</div>
+      </div>
+      <span class="edu-family">蟻蛉科 Myrmeleontidae</span>
+      <span class="conf-badge conf-hi">信心 95%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>Jyh Jong Cherng鑑定「Myrmeleon taiwanensis」，蕭世祥「#larva #Myrmeleon」，台灣特有種確認</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 葉大詮</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/2040772382755491" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="褐蛉科 Hemerobiidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/486492231516855/4950225f2244f972.jpg" alt="褐蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">褐蛉</div>
+        <div class="edu-sci">Notiobiella ochracea</div>
+      </div>
+      <span class="edu-family">褐蛉科 Hemerobiidae</span>
+      <span class="conf-badge conf-hi">信心 95%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>「2012.1.13 桃園大園」，蕭世祥「Notiobiella ochracea Nakahara, 1966 #Notiobiella」</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 Weiting Liu · 📍 桃園大園</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/486492231516855" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="翼蛉科 Osmylidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/548231392009605/bc4f445ab0d4f69c.jpg" alt="翼蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">翼蛉</div>
+        <div class="edu-sci">Spilosmylus tuberculatus</div>
+      </div>
+      <span class="edu-family">翼蛉科 Osmylidae</span>
+      <span class="conf-badge conf-hi">信心 95%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>Lacewing Chrysophidae「Spilosmylus tuberculatus 小點翼蛉」，蕭世祥「#Spilosmylus」</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 向高世</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/548231392009605" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="蟻蛉科 Myrmeleontidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/2310631809102879/a940d4ee0de86598.jpg" alt="蟻蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">蟻蛉</div>
+        <div class="edu-sci">Cueta kurtzi</div>
+      </div>
+      <span class="edu-family">蟻蛉科 Myrmeleontidae</span>
+      <span class="conf-badge conf-hi">信心 95%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>標題「請教蟻蛉種類」，Jyh Jong Cherng鑑定「Cueta kurzi (Navás, 1912) 土阱蟻蛉」，台灣野外稀有蟻蛉</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 Hweishan Lai</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/2310631809102879" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="螳蛉科 Mantispidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/1464551667044235/5d0d27b99c5efc81.jpg" alt="螳蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">螳蛉</div>
+        <div class="edu-sci">Eumantispa taiwanensis</div>
+      </div>
+      <span class="edu-family">螳蛉科 Mantispidae</span>
+      <span class="conf-badge conf-hi">信心 95%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>賴保成「Eumantispa taiwanensis Kuwayama, 1925 台灣優螳蛉 雌蟲」，蕭世祥「#Eumantispa」</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 郭定軒</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/1464551667044235" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="蟻蛉科 Myrmeleontidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/661724730660270/62572ff43aba7676.jpg" alt="蟻蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">蟻蛉</div>
+        <div class="edu-sci">Baliga asakurae</div>
+      </div>
+      <span class="edu-family">蟻蛉科 Myrmeleontidae</span>
+      <span class="conf-badge conf-hi">信心 95%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>莊棨州「蟻蛉科 白斑蟻蛉 Baliga asakurae Okamoto, 1913（附TaiBIF連結）」，蕭世祥「#Baliga」</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 Wen Fong</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/661724730660270" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="蛾蛉科 Psychopsidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/534101183422626/ff679ee423c8dc78.jpg" alt="螳蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">螳蛉</div>
+        <div class="edu-sci">Euclimacia badia</div>
+      </div>
+      <span class="edu-family">蛾蛉科 Psychopsidae</span>
+      <span class="conf-badge conf-hi">信心 95%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>廖文泉「銅頭螳蛉」，賴保成「銅頭螳蛉 Euclimacia badia Okamoto, 1910」，蕭世祥「#Euclimacia」</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 耿通</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/534101183422626" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="蟻蛉科 Myrmeleontidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/2621197854712938/bb10ef731db861ef.jpg" alt="蟻蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">蟻蛉</div>
+        <div class="edu-sci">Cueta kurzi</div>
+      </div>
+      <span class="edu-family">蟻蛉科 Myrmeleontidae</span>
+      <span class="conf-badge conf-hi">信心 95%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>Jyh Jong Cherng留言鑑定「Cueta kurzi (Navás, 1912) 土阱蟻蛉」，圖示小型蟻蛉懸草葉，台灣野外</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 蔡麗香</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/2621197854712938" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="褐蛉科 Hemerobiidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/2246289448870449/b302656a25a15f04.jpg" alt="褐蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">褐蛉</div>
+        <div class="edu-sci">Zachobiella striata</div>
+      </div>
+      <span class="edu-family">褐蛉科 Hemerobiidae</span>
+      <span class="conf-badge conf-hi">信心 95%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>台灣作者，蕭世祥鑑定「#Zachobiella striata Nakahara, 1966 條斑寡脈褐蛉」，台灣野外稀有褐蛉種確認</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 水晶</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/2246289448870449" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="齒蛉科 Corydalidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/1284768414976931/2c1a2e2ce201c7d0.jpg" alt="魚蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">魚蛉</div>
+        <div class="edu-sci">Neochauliodes fraternus</div>
+      </div>
+      <span class="edu-family">齒蛉科 Corydalidae</span>
+      <span class="conf-badge conf-hi">信心 95%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>賴保成鑑定「Neochauliodes fraternus (McLachlan, 1869) 汙翅斑魚蛉」，台灣野外廣翅目確認</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 陳筱愉</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/1284768414976931" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="蛾蛉科 Psychopsidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/704669329699143/e75fde84ed754f9e.jpg" alt="螳蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">螳蛉</div>
+        <div class="edu-sci">Euclimacia sp.</div>
+      </div>
+      <span class="edu-family">蛾蛉科 Psychopsidae</span>
+      <span class="conf-badge conf-hi">信心 95%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>「2016.09.24 新北市坪林區」，賴保成確認極稀有Euclimacia（全台僅4件標本），蕭世祥「#Euclimacia」</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 Jyh Jong Cherng · 📍 新北市坪林區</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/704669329699143" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="蝶角蛉科 Ascalaphidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/490925877740157/f2397bc6b0f88ecc.jpg" alt="蝶角蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">蝶角蛉</div>
+        <div class="edu-sci">Protidricerus sp.</div>
+      </div>
+      <span class="edu-family">蝶角蛉科 Ascalaphidae</span>
+      <span class="conf-badge conf-hi">信心 95%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>「桃園復興鄉三民村」，莊棨州「原完眼蝶角蛉 Protidricerus sp.」，蕭世祥「#Protidricerus」</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 Logan Lai · 📍 桃園復興鄉三民村</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/490925877740157" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="蟻蛉科 Myrmeleontidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/2310525359113524/fdcf24aaa6becbbc.jpg" alt="蟻蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">蟻蛉</div>
+        <div class="edu-sci">Paraglenurus pumilus</div>
+      </div>
+      <span class="edu-family">蟻蛉科 Myrmeleontidae</span>
+      <span class="conf-badge conf-hi">信心 92%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>貼文「Paraglenurus lotzi...2022.07.24 新北」，郑昱辰更正「其实是 小白云蚁蛉 Paraglenurus pumilus (Yang, 1997)，一种海岸限定」，台灣海岸蟻蛉</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 Jyh Jong Cherng · 📍 新北</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/2310525359113524" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="蟻蛉科 Myrmeleontidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/2310528672446526/ba026bf4e615ea75.jpg" alt="蟻蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">蟻蛉</div>
+        <div class="edu-sci">Distoleon littoralis</div>
+      </div>
+      <span class="edu-family">蟻蛉科 Myrmeleontidae</span>
+      <span class="conf-badge conf-hi">信心 92%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>貼文「2022.07.24 新北市淡水區沙崙海水浴場」，郑昱辰鑑定「应该是Distoleon littolaris Miller &amp; Stange, 1999」，台灣海岸蟻蛉</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 Jyh Jong Cherng · 📍 新北市淡水區沙崙海水浴場</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/2310528672446526" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="其他">
+  <div class="edu-img" style="min-height:130px"><img src="images/1940970529402344/9451dac9c09fdb4d.jpg" alt="脈蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">脈蛉</div>
+        <div class="edu-sci">Nipponeurothus fasciatus</div>
+      </div>
+      <span class="edu-family">其他</span>
+      <span class="conf-badge conf-hi">信心 92%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>蕭世祥「#Nipponeurothus，脈蛉科 Nevrorthidae，Nipponeurothus fasciatus Nakahara, 1958」，台灣野外稀有脈蛉科</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 Rigo Chang</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/1940970529402344" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="草蛉科 Chrysopidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/576242655875145/63bac8df8b6e730c.jpg" alt="草蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">草蛉</div>
+        <div class="edu-sci">Ankylopteryx sp.</div>
+      </div>
+      <span class="edu-family">草蛉科 Chrysopidae</span>
+      <span class="conf-badge conf-hi">信心 92%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>Lacewing Chrysophidae「像 Ankylopteryx gracilis Nakahara, 1955」，蕭世祥「#Ankylopteryx」，台灣野外確認</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 林暐倫</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/576242655875145" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="櫛角蛉科 Dilaridae">
+  <div class="edu-img" style="min-height:130px"><img src="images/608560849309992/85178d6ec5b762f6.jpg" alt="櫛角蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">櫛角蛉</div>
+        <div class="edu-sci">Dilar insularis</div>
+      </div>
+      <span class="edu-family">櫛角蛉科 Dilaridae</span>
+      <span class="conf-badge conf-hi">信心 92%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>貼文「2016/04/01 桃園 蘆竹 南崁山」，賴保成「可能是Dilar insularis Zhang, Liu &amp; Aspöck, 2014」，蕭世祥「#Dilar」</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 Ferdinand Colour Wang · 📍 桃園蘆竹南崁山</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/608560849309992" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="齒蛉科 Corydalidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/824292111070197/04784295dce8add2.jpg" alt="台灣斑魚蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">台灣斑魚蛉</div>
+        <div class="edu-sci">Neochauliodes formosanus</div>
+      </div>
+      <span class="edu-family">齒蛉科 Corydalidae</span>
+      <span class="conf-badge conf-hi">信心 92%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>「2017.05.05 南投縣鹿谷鄉田底，海拔約700m」，賴保成「Neochauliodes formosanus」，蕭世祥「#Neochauliodes」</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 Young-Fa Chen · 📍 南投鹿谷鄉</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/824292111070197" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="其他">
+  <div class="edu-img" style="min-height:130px"><img src="images/2658175907681799/74b8cbb007b95978.jpg" alt="蟻蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">蟻蛉</div>
+        <div class="edu-sci">Bullanga sp.</div>
+      </div>
+      <span class="edu-family">其他</span>
+      <span class="conf-badge conf-hi">信心 92%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>標題「南投縣鹿谷鄉鳳凰村 海拔840公尺」，郑昱辰留言「Dendroleon esbenpeterseni，但实際上是Bullanga屬」，台灣野外稀有蟻蛉</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 Young-Fa Chen · 📍 南投縣鹿谷鄉</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/2658175907681799" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="蟻蛉科 Myrmeleontidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/2362781783887881/a98f43fd910a7673.jpg" alt="蟻蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">蟻蛉</div>
+        <div class="edu-sci">Paraglenurus sp.</div>
+      </div>
+      <span class="edu-family">蟻蛉科 Myrmeleontidae</span>
+      <span class="conf-badge conf-hi">信心 92%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>台灣作者，林育脩留言「Paraglenurus這屬...P. riparius 和P. littoralis」，確認台灣野外蟻蛉Paraglenurus屬</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 李鍾旻</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/2362781783887881" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="草蛉科 Chrysopidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/667128636786546/2e44294d851969eb.jpg" alt="草蛉幼蟲"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">草蛉幼蟲</div>
+        <div class="edu-sci">Chrysoperla sp.</div>
+      </div>
+      <span class="edu-family">草蛉科 Chrysopidae</span>
+      <span class="conf-badge conf-hi">信心 92%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>Lacewing Chrysophidae「Chrysoperla 普通草蛉屬的幼蟲」，蕭世祥「#Chrysoperla #larvae」，台灣野外確認</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 吳思緯</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/667128636786546" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="蟻蛉科 Myrmeleontidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/2220153568150704/f7e24d00f82c8185.jpg" alt="蟻獅"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">蟻獅</div>
+        <div class="edu-sci">Myrmeleon sp.</div>
+      </div>
+      <span class="edu-family">蟻蛉科 Myrmeleontidae</span>
+      <span class="conf-badge conf-hi">信心 92%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>林育脩鑑定「蟻蛉幼蟲Myrmeleon sp.，可能是M. punctinervis（溪流沙地）」，蕭世祥「#Myrmeleon #larva」</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 黃棕堡</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/2220153568150704" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="蟻蛉科 Myrmeleontidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/2004158696416860/b1b7d9aefd67efd6.jpg" alt="蟻蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">蟻蛉</div>
+        <div class="edu-sci">Myrmeleon littoralis</div>
+      </div>
+      <span class="edu-family">蟻蛉科 Myrmeleontidae</span>
+      <span class="conf-badge conf-hi">信心 92%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>林育脩鑑定「Myrmeleon littoralis Miller &amp; Stange,1999 胸紋蟻蛉 #Myrmeleon」，台灣野外確認</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 黃棕堡</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/2004158696416860" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div>
+<div class="edu-card" data-fam="蝶角蛉科 Ascalaphidae">
+  <div class="edu-img" style="min-height:130px"><img src="images/1094826670683405/8703e09624d452c0.jpg" alt="蝶角蛉"></div>
+  <div class="edu-body">
+    <div class="edu-top">
+      <div>
+        <div class="edu-sp">蝶角蛉</div>
+        <div class="edu-sci">Protidricerus elwesi</div>
+      </div>
+      <span class="edu-family">蝶角蛉科 Ascalaphidae</span>
+      <span class="conf-badge conf-hi">信心 92%</span>
+    </div>
+    <div class="edu-evidence"><strong>辨識依據：</strong>廖文泉「Protidricerus elwesi McLachlan, 1891 寬完眼蝶角蛉雌蟲 Ascalaphidae」，台灣野外確認</div>
+    <div class="edu-footer">
+      <span class="edu-author">📸 徐志文</span>
+      <a class="edu-link" href="https://www.facebook.com/groups/483678968464848/posts/1094826670683405" target="_blank">↗ 原貼文</a>
+    </div>
+  </div>
+</div></div>
+</main>
+<script>
+const ALL = document.querySelectorAll(".edu-card");
+function filter(fam) {
+  document.querySelectorAll(".filt-btn").forEach(b => b.classList.toggle("active", b.dataset.fam === fam));
+  ALL.forEach(c => {
+    c.style.display = (!fam || c.dataset.fam === fam) ? "" : "none";
+  });
+}
+// Build filter buttons from data
+const fams = [...new Set([...ALL].map(c => c.dataset.fam).filter(Boolean))];
+const fr = document.getElementById("filters");
+const all = document.createElement("button");
+all.className = "filt-btn active"; all.textContent = "全部"; all.dataset.fam = "";
+all.onclick = () => filter("");
+fr.appendChild(all);
+fams.forEach(f => {
+  const b = document.createElement("button");
+  b.className = "filt-btn"; b.textContent = f.split(" ")[0]; b.dataset.fam = f;
+  b.onclick = () => filter(f);
+  fr.appendChild(b);
+});
+</script>
+</body>
+</html>
