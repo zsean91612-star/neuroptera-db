@@ -362,6 +362,7 @@ const POSTS = [{"post_id": "3590592781106769", "post_url": "https://www.facebook
 // ── State ──
 let activeCategory = "all";
 let activeSpecies  = null;
+let activeFamily   = null;
 let searchQuery    = "";
 
 // ── Category counts ──
@@ -431,7 +432,7 @@ function buildFamilyGroups() {
   const container = document.getElementById("family-groups");
   container.innerHTML = sortedFamilies.map(([fam, items]) => {
     const total = items.reduce((s, x) => s + x.cnt, 0);
-    const hasActive = items.some(x => x.sp === activeSpecies);
+    const hasActive = items.some(x => x.sp === activeSpecies) || fam === activeFamily;
     const isOpen = hasActive || (sortedFamilies.length <= 3);
     return `<div class="family-group ${isOpen ? 'open' : ''}" data-fam="${esc(fam)}">
       <div class="family-header ${hasActive ? 'has-active' : ''}" onclick="toggleFamily(this)">
@@ -455,7 +456,19 @@ function esc(s) { return s.replace(/'/g, "\'").replace(/"/g, "&quot;"); }
 
 function toggleFamily(header) {
   const group = header.parentElement;
-  group.classList.toggle("open");
+  const fam = group.dataset.fam;
+  const nowOpen = group.classList.toggle("open");
+  // 點科別：展開的同時，右側顯示整科所有紀錄；收合則清除該科篩選
+  if (nowOpen) {
+    activeFamily = fam;
+    activeSpecies = null;
+  } else if (activeFamily === fam) {
+    activeFamily = null;
+  }
+  document.querySelectorAll(".family-header").forEach(h =>
+    h.classList.toggle("has-active", h.parentElement.dataset.fam === activeFamily));
+  document.querySelectorAll(".species-item").forEach(el => el.classList.remove("active"));
+  renderGrid();
 }
 
 function speciesFamily(sp) {
@@ -472,6 +485,7 @@ function speciesFamily(sp) {
 function selectCat(cat) {
   activeCategory = cat;
   activeSpecies = null;
+  activeFamily = null;
   document.querySelectorAll(".cat-list li").forEach(el => {
     el.classList.toggle("active", el.dataset.cat === cat);
   });
@@ -484,6 +498,7 @@ function selectSpecies(sp) {
     activeSpecies = null;
   } else {
     activeSpecies = sp;
+    activeFamily = null;   // 選單一物種時解除整科篩選
   }
   buildFamilyGroups();
   renderGrid();
@@ -492,6 +507,7 @@ function selectSpecies(sp) {
 function filterPosts() {
   return POSTS.filter(p => {
     if (activeCategory !== "all" && (p.category || "other") !== activeCategory) return false;
+    if (activeFamily && speciesFamily(p.species || "") !== activeFamily) return false;
     if (activeSpecies && p.species !== activeSpecies) return false;
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
