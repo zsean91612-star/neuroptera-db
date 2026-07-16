@@ -2,7 +2,6 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="robots" content="noindex, nofollow"><meta name="googlebot" content="noindex, nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>脈翅目物種辨識測驗</title>
 <style>
@@ -61,6 +60,33 @@
   #lb img{max-width:95vw;max-height:93vh;object-fit:contain;border-radius:6px;}
   #lb-x{position:fixed;top:1rem;right:1.2rem;color:#fff;font-size:2rem;cursor:pointer;line-height:1;}
 
+  /* ── 出題類群勾選面板 ── */
+  .filter-panel{background:var(--card);border:1px solid var(--bd);border-radius:10px;margin-bottom:1.1rem;overflow:hidden;}
+  .filter-head{display:flex;align-items:center;gap:.5rem;padding:.65rem 1rem;cursor:pointer;user-select:none;font-size:.9rem;font-weight:600;color:var(--a2);}
+  .filter-head .fp-arrow{transition:transform .2s;font-size:.7rem;color:var(--mu);}
+  .filter-panel.collapsed .fp-arrow{transform:rotate(-90deg);}
+  .filter-head .fp-count{margin-left:auto;font-size:.78rem;font-weight:400;color:var(--mu);}
+  .filter-body{padding:.2rem 1rem 1rem;border-top:1px solid var(--bd);}
+  .filter-panel.collapsed .filter-body{display:none;}
+  .fp-actions{display:flex;gap:.5rem;margin:.75rem 0 .85rem;}
+  .fp-actions button{background:none;border:1px solid var(--bd);border-radius:7px;padding:.32rem .75rem;font-size:.78rem;color:var(--mu);cursor:pointer;font-family:inherit;}
+  .fp-actions button:hover{background:var(--al);border-color:var(--accent);color:var(--a2);}
+  .fam-chips{display:flex;flex-wrap:wrap;gap:.5rem;}
+  .fam-chip{display:inline-flex;align-items:center;gap:.4rem;padding:.42rem .72rem;border:1.5px solid var(--bd);border-radius:999px;font-size:.83rem;cursor:pointer;user-select:none;transition:border-color .12s,background .12s;}
+  .fam-chip .fc-box{width:16px;height:16px;border:1.5px solid var(--mu);border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-size:.7rem;color:#fff;flex-shrink:0;line-height:1;}
+  .fam-chip.on{border-color:var(--accent);background:var(--al);color:var(--a2);font-weight:600;}
+  .fam-chip.on .fc-box{background:var(--accent);border-color:var(--accent);}
+  .fam-chip .fc-cnt{font-size:.72rem;color:var(--mu);}
+  .fam-chip.on .fc-cnt{color:var(--a2);}
+  .fp-warn{color:var(--ng);font-size:.8rem;margin-top:.7rem;display:none;}
+
+  @media(max-width:640px){
+    header{flex-wrap:wrap;padding:.55rem .9rem;gap:.45rem;}
+    header h1{font-size:1rem;} header .sub{font-size:.72rem;}
+    .nav{margin-left:0;width:100%;gap:.35rem;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:.1rem;}
+    .nav a{font-size:.76rem;padding:.2rem .55rem;white-space:nowrap;}
+    .quiz-wrap{margin:1rem auto;padding:0 .8rem 2.5rem;}
+  }
   @media(max-width:480px){.choices{grid-template-columns:1fr;}.q-img-wrap{min-height:220px;}}
 </style>
 </head>
@@ -80,6 +106,21 @@
 </header>
 
 <div class="quiz-wrap">
+  <div class="filter-panel collapsed" id="filter-panel">
+    <div class="filter-head" onclick="toggleFilter()">
+      <span class="fp-arrow">▼</span>
+      <span>⚙️ 出題類群</span>
+      <span class="fp-count" id="fp-count"></span>
+    </div>
+    <div class="filter-body">
+      <div class="fp-actions">
+        <button onclick="selectAllFam(true)">全選</button>
+        <button onclick="selectAllFam(false)">全部取消</button>
+      </div>
+      <div class="fam-chips" id="fam-chips"></div>
+      <div class="fp-warn" id="fp-warn">⚠️ 至少要選一個類群</div>
+    </div>
+  </div>
   <div class="score-bar">
     <span class="s-mu">答對 / 已答</span>
     <span><span class="s-num" id="s-ok">0</span><span class="s-mu"> / </span><span class="s-num" id="s-tot">0</span></span>
@@ -118,21 +159,61 @@ const ITEMS = [{"image": "640860226080054/f4f70129bfb05c1a.jpg", "species": "刺
 const ALL_SP = ["中華斑魚蛉", "中華泥蛉", "優雅平翅草蛉", "刺蝶角蛉", "南方斑魚蛉", "台灣優螳蛉", "台灣斑魚蛉", "台灣草蛉", "台灣蝶角蛉", "台灣螳蛉", "台灣蟻蛉", "土阱蟻蛉", "大斑翼蛉", "完眼蝶角蛉", "寬原完眼蝶角蛉", "寬完眼蝶角蛉", "小白雲蟻蛉", "小點翼蛉", "少紋蟻蛉", "山蛉", "巨彎爪蟻蛉", "彎爪蟻蛉", "後緣斑褐蛉", "斑石蛉", "斑褐蛉", "斑魚蛉", "日本草蛉", "日本螳蛉", "星齒蛉", "暗色準魚蛉", "松村氏網草蛉", "松村網蛉", "條斑寡脈褐蛉", "梯螳蛉", "櫛角蛉", "毛蛉", "汙翅斑魚蛉", "污翅斑魚蛉", "沙阱蟻蛉", "泥蛉", "瑪草蛉", "異平翅草蛉", "瘦狹肩褐蛉", "白斑蟻蛉", "等痣蝶角蛉", "粉蛉", "粗腿蟻蛉", "紅痣草蛉", "紅肩草蛉", "網蛉", "翼蛉", "胸紋蟻蛉", "脈蛉", "脈褐蛉", "臀腋蟻蛉", "花邊星齒蛉", "草蛉", "蛇蛉", "蛾蛉", "蝶角蛉", "螳蛉", "蟻獅", "蟻蛉", "褐胸蝶角蛉", "褐蛉", "褐跗蟻蛉", "褐頂蝶角蛉", "銅頭螳蛉", "雙斑蟻蛉", "魚蛉", "麗紋蟻蛉", "黃紋星齒蛉", "黑色螳蛉", "齒蛉"];
 
 let pool=[], cur=null, qn=0, ok=0, tot=0, streak=0, answered=false;
+let activeItems=ITEMS;
+let activeSpecies=ALL_SP;   // 干擾選項候選池（跟出題類群連動）
 
 function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
 
+// ── 出題類群勾選 ──
+const FAM_KEY="quiz_fam_filter_v1";
+function famList(){
+  const cnt={};
+  ITEMS.forEach(it=>{const f=it.family||"其他";cnt[f]=(cnt[f]||0)+1;});
+  return Object.entries(cnt).sort((a,b)=>b[1]-a[1]);
+}
+function loadFamSel(){
+  try{const s=JSON.parse(localStorage.getItem(FAM_KEY));if(Array.isArray(s)&&s.length)return new Set(s);}catch(e){}
+  return new Set(famList().map(x=>x[0]));
+}
+let famSel=loadFamSel();
+function computeActiveSpecies(){return ALL_SP.filter(s=>famSel.has(FAMILY_MAP[s]||"其他"));}
+function toggleFilter(){document.getElementById("filter-panel").classList.toggle("collapsed");}
+function buildFamChips(){
+  document.getElementById("fam-chips").innerHTML=famList().map(([f,c])=>{
+    const on=famSel.has(f);
+    return `<label class="fam-chip ${on?'on':''}" onclick="toggleFam('${esc(f)}',event)">`
+      +`<span class="fc-box">${on?'✓':''}</span>${esc(f)} <span class="fc-cnt">${c}</span></label>`;
+  }).join("");
+  const nf=famSel.size, all=famList().length;
+  const total=ITEMS.filter(it=>famSel.has(it.family||"其他")).length;
+  document.getElementById("fp-count").textContent=
+    nf>=all?`全部 ${all} 類群 · ${total} 題`:`已選 ${nf}/${all} 類群 · ${total} 題`;
+}
+function toggleFam(f,ev){ev.preventDefault();if(famSel.has(f))famSel.delete(f);else famSel.add(f);applyFam();}
+function selectAllFam(on){famSel=on?new Set(famList().map(x=>x[0])):new Set();applyFam();}
+function applyFam(){
+  const warn=document.getElementById("fp-warn");
+  if(famSel.size===0){warn.style.display="block";buildFamChips();return;}
+  warn.style.display="none";
+  localStorage.setItem(FAM_KEY,JSON.stringify([...famSel]));
+  buildFamChips();
+  activeItems=ITEMS.filter(it=>famSel.has(it.family||"其他"));
+  activeSpecies=computeActiveSpecies();
+  resetQuiz();
+}
+
 function distractors(sp, fam, n) {
-  // prefer same-family distractors first
-  const sameFam = ALL_SP.filter(s => s !== sp && FAMILY_MAP[s] === fam && fam);
-  const other   = ALL_SP.filter(s => s !== sp && !(FAMILY_MAP[s] === fam && fam));
+  const src = (activeSpecies && activeSpecies.length) ? activeSpecies : ALL_SP;
+  const sameFam = src.filter(s => s !== sp && FAMILY_MAP[s] === fam && fam);
+  const other   = src.filter(s => s !== sp && !(FAMILY_MAP[s] === fam && fam));
   return shuffle([...sameFam, ...other]).slice(0, n);
 }
 const FAMILY_MAP = {"台灣螳蛉": "螳蛉科", "日本螳蛉": "螳蛉科", "台灣優螳蛉": "螳蛉科", "黑色螳蛉": "螳蛉科", "刺蝶角蛉": "蝶角蛉科", "褐頂蝶角蛉": "蝶角蛉科", "完眼蝶角蛉": "蝶角蛉科", "寬完眼蝶角蛉": "蝶角蛉科", "台灣斑魚蛉": "齒蛉科", "南方斑魚蛉": "齒蛉科", "中華斑魚蛉": "齒蛉科", "污翅斑魚蛉": "齒蛉科", "星齒蛉": "齒蛉科", "暗色準魚蛉": "齒蛉科", "小點翼蛉": "翼蛉科", "大斑翼蛉": "翼蛉科", "雙斑蟻蛉": "蟻蛉科", "白斑蟻蛉": "蟻蛉科", "少紋蟻蛉": "蟻蛉科", "台灣蟻蛉": "蟻蛉科"};
 
-function resetQuiz(){pool=shuffle([...ITEMS]);ok=0;tot=0;streak=0;qn=0;upd();nextQ();}
+function resetQuiz(){if(!activeItems.length)activeItems=ITEMS;pool=shuffle([...activeItems]);ok=0;tot=0;streak=0;qn=0;upd();nextQ();}
 
 function nextQ(){
-  if(!pool.length) pool=shuffle([...ITEMS]);
+  if(!pool.length) pool=shuffle([...activeItems]);
   cur=pool.pop(); qn++;
   answered=false;
   document.getElementById("q-img").src="images/"+cur.image;
@@ -186,6 +267,9 @@ document.addEventListener("keydown",e=>{
 });
 function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/'/g,"&#39;");}
 
+buildFamChips();
+activeItems=ITEMS.filter(it=>famSel.has(it.family||"其他"));
+activeSpecies=computeActiveSpecies();
 resetQuiz();
 </script>
 </body>
